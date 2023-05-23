@@ -14,9 +14,9 @@ app.config['SECRET_KEY'] = config('SECRET_KEY')
 # suppress SQLAlchemy warning
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #DB Connection
-app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL', 'something.ac.uk')
+app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL', 'DATABASE_URL.ac.uk')
 #Admin email
-app.config['MAIL_USERNAME'] = config('MAIL', 'mytable4@gmail.com')
+app.config['MAIL_USERNAME'] = config('MAIL', 'MyMail@MailServer.com')
 
 
 
