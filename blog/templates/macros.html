@@ -1,0 +1,4 @@
+{% macro nav_link(endpoint, text) %}
+{% set is_active = request.endpoint.split('.')[0] == endpoint.split('.')[0] %}
+<a href="{{ url_for(endpoint) }}" class="nav-link p-3 fw-bold {{ 'active ms-md-0 ms-3' if is_active else '' }}" {{ 'aria-current="page"' if is_active else '' }}>{{ text }}</a>
+{% endmacro %}

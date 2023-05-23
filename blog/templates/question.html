@@ -1,0 +1,20 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+
+
+<form method="POST" >
+    {{ form.csrf_token }}
+    <div class="container" style="padding: 15px ;">
+        <h2>Question List</h2>
+        <br>
+        <a  type="button" class="btn btn-dark rounded-0" href="{{ url_for('add_question') }}"  class="text-dark" style="margin-bottom: 10px;">Add Questions</a>
+        
+        <!-- Questions list Table -->
+        {% include 'questions_table.html'%}
+    </div>
+</form>
+
+
+{% endblock content %}

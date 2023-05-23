@@ -1,0 +1,73 @@
+{% extends "index.html" %}
+<!-- {% import "bootstrap/wtf.html" as wtf%} -->
+{% block content %}
+
+<form method="POST"  id="contactForm" name="contactForm">
+      <!-- Profile page navigation-->
+  
+      <div class="row">
+          <div class="col-xl-12">
+                <!-- Profile details card-->
+                <div class="card mb-12">
+                    <div class="card-header">Basic Info</div>    
+                    <div class="card-body">
+                        <div class="tab-content ml-1" id="myTabContent">
+                            <div class="tab-pane fade show active" id="basicInfo" role="tabpanel" aria-labelledby="basicInfo-tab">
+
+                              <div class="row">
+                                  <div class="col-sm-3 col-md-2 col-5">
+                                      <label style="font-weight:bold;">UID</label>
+                                  </div>
+                                  <div class="col-md-8 col-6">
+                                    {{ current_user.id }}
+                                  </div>
+                              </div>
+                              <hr />
+
+                              <div class="row">
+                                  <div class="col-sm-3 col-md-2 col-5">
+                                      <label style="font-weight:bold;">Full Name</label>
+                                  </div>
+                                  <div class="col-md-8 col-6">
+                                    {{ current_user.first_name }} {{ current_user.last_name }}
+                                  </div>
+                              </div>
+                              <hr />
+
+                              <div class="row">
+                                  <div class="col-sm-3 col-md-2 col-5">
+                                      <label style="font-weight:bold;">Access</label>
+                                  </div>
+                                  <div class="col-md-8 col-6">
+                                    {{ current_user.access_type }}
+                                  </div>
+                              </div>
+                              <hr />
+                                
+                                
+                              <div class="row">
+                                  <div class="col-sm-3 col-md-2 col-5">
+                                      <label style="font-weight:bold;">email</label>
+                                  </div>
+                                  <div class="col-md-8 col-6">
+                                    {{ current_user.email }}
+                                  </div>
+                              </div>
+                              <hr>
+
+                              <div class="row">
+                              {% include 'logout.html'%}
+                              </div> 
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+          </div>
+      </div>
+    </div>
+  </form>
+  
+{% endblock content %}
+
+

@@ -1,0 +1,105 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+<!-- Custom CSS -->
+<style>
+  .row-middle {
+    height: 40vh;
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+  .col-image {
+    text-align: center;
+    margin-top: 40px;
+  }
+  .col-image img {
+    max-width: 90%;
+    max-height: 90px; /* set the maximum height to 150 pixels */
+    transition: transform 0.2s ease-in-out;
+  }
+  .col-image:hover img {
+    transform: scale(1.1);
+  }
+  .col-title {
+    margin-top: 10px;
+    text-align: center;
+  }
+  .col-title a {
+    color: #343a40;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: bold;
+    transition: color 0.2s ease-in-out;
+  }
+
+  /* Media query for screens smaller than 768px (i.e. mobile devices) */
+  @media only screen and (max-width: 767px) {
+    .row-middle {
+      flex-wrap: wrap;
+      height: auto;
+      margin-top: 0;
+    }
+    .col-image {
+      margin-top: 20px;
+    }
+    .col-image img {
+      max-height: 60px;
+    }
+    .col-title {
+      margin-top: 10px;
+    }
+    .col-title a {
+      font-size: 16px;
+    }
+  }
+</style>
+
+
+  <div class="row row-middle">
+      {% if current_user.access_type != "student" %}
+
+        <div class="col-md-3 col-image">
+            <a href="{{ url_for('question') }}">
+            <img src="https://img.icons8.com/ios/256/create.png" alt="Question">
+            <div class="col-title">
+
+                  <a href="#">Questions</a>
+              </div>
+              </a>
+          </div>
+
+        <div class="col-md-3 col-image">
+            <a href="{{ url_for('create_assessment')}}">
+            <img src="https://img.icons8.com/dotty/512/exam.png" alt="Assessment">
+            <div class="col-title">
+
+                  <a href="{{ url_for('create_assessment')}}">Assessments</a>
+              </div>
+              </a>
+          </div>
+
+      {% endif %}
+
+        <div class="col-md-3 col-image">
+            <a href="{{ url_for('report.home') }}">
+            <img src="https://img.icons8.com/dotty/512/graph-report.png" alt="Report">
+            <div class="col-title">
+                
+                <a href="#">Reports</a>
+            </div>
+            </a>
+        </div>
+
+  </div>
+
+
+
+
+
+  
+{% endblock content %}

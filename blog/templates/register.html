@@ -1,0 +1,82 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+
+
+<form method="POST"  id="contactForm" name="contactForm">
+  {{ form.csrf_token }}
+    <!-- Account page navigation-->
+
+    <div class="row">
+      <br>
+        <div class="col-xl-12">
+              <br>
+              <!-- Account details card-->
+              <div class="card mb-12">
+                  {% if current_user.access_type == "admin"%}
+                  <div class="card-header">Account Details</div>
+                  {% else %}
+                      <div class="card-header">Create Dummy Account</div>
+                  {% endif %}
+  
+                  <div class="card-body">
+                      <form >
+              
+                          <div class="row gx-3 mb-3">
+                              <!-- Form Group (first name)-->
+                              <div class="col-md-6">
+                                  {{ wtf.form_field(form.first_name, type="text", class="form-control", placeholder="Enter First Name" ) }}
+                                  <div class="invalid-feedback">
+                                      Input Required
+                                  </div>
+                              </div>
+                              <!-- Form Group (last name)-->
+                              <div class="col-md-6">
+                                  {{ wtf.form_field(form.last_name, type="text", class="form-control", placeholder="Enter Last Name" ) }}
+                                  <div class="invalid-feedback">
+                                      Input Required
+                                  </div>
+                              </div>
+                          </div>
+                          <!-- Form Row-->
+                          <div class="row gx-3 mb-3">
+                              <!-- Form Group (Access type)-->
+                              <div class="col-md-6">
+                                  {{ wtf.form_field(form.access_type, class="form-control form-select" ) }}
+                                  <div class="invalid-feedback">
+                                      Input Required
+                                  </div>
+                              </div>
+                              <!-- Form Group (Password)-->
+                              <div class="col-md-6">
+                                  {{ wtf.form_field(form.password, type="password", class="form-control", placeholder="Password" ) }}
+                                  <div class="invalid-feedback">
+                                      Password Invalid
+                                  </div>
+                              </div>
+                          </div>
+                          <!-- Form Group (email address)-->
+                          <div class="mb-3">
+                              {{ wtf.form_field(form.email, type="email", class="form-control", placeholder="Enter Email Address" ) }}
+                              <div class="invalid-feedback">
+                                  
+                              </div>
+                          </div>
+                          {{ wtf.form_field(form.register, type="submit", class="btn btn-dark btn-lg rounded-0 py-2 px-4") }}
+                          
+                      </form>
+                  </div>
+              </div>
+        </div>
+    </div>
+  </div>
+  
+
+ 
+</form>
+
+
+
+
+{% endblock content %}

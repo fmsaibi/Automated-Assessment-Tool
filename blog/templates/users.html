@@ -1,0 +1,64 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+
+<script>
+  //Add Sorting to the table _____________________________________________________________________________
+  $(document).ready(function() {
+      $('.table').DataTable({
+          "pageLength": 25,
+          "responsive": true
+      });
+  });
+</script>
+
+
+  <div class="container">
+        <H3>Dummy Account List</H3>
+        <br>
+        <div class="col-1">
+          <a  type="button" class="btn btn-dark rounded-0" href="{{ url_for('register') }}"  class="text-dark">Add Users</a>
+        <br>
+        <br>
+
+        </div>
+        {% if users %}
+
+        <div class="table-responsive">
+          <table class="table hover"  style="width: 100%;">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">UID</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Email</th>
+                <th scope="col">Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              <form method="POST" class="row g-3">
+                {{ form.csrf_token }}
+                {% for user in users %}
+
+                  <tr>
+                    <td scope="row">{{ loop.index }} </td>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.first_name}}</td>
+                    <td>{{ user.last_name}}</td>
+                    <td>{{ user.access_type}}</td>
+                    <td>{{ user.email}}</td>
+                    <td><a class="btn btn-danger rounded-0 " href="{{ url_for('delete',option='user', id=user.id) }}">Delete</a></td>
+                  </tr>            
+                {% endfor %}
+              </form>      
+            </tbody>
+          </table>
+        </div>
+
+        {% endif%}
+  </div>
+
+{% endblock content %}

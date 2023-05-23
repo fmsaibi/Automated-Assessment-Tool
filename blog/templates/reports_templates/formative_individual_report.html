@@ -1,0 +1,413 @@
+{% extends "index.html" %}
+
+{% block title %}Student Assessment Report{% endblock %}
+{% block headtags %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='reports.css') }}">
+    <script src="https://kit.fontawesome.com/f583ca8d25.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <!-- Chart JS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Download PDF Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}
+
+{% block breadcrumbs %}
+    <div class="bg-dark text-white" data-bs-theme="dark">
+        <div class="container-sm container-fluid d-flex flex-column text-left ">
+            <div class="row flex-grow-1 text-left">
+                <div class="rounded-0">
+                    <div class="container">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-1 mb-2 p-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('report.home') }}">Reports</a></li>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ url_for('report.view_reports_list',module_code=module.module_code, assessment_id=assessment.id) }}">{{ assessment_details.name }}</a>
+                                </li>
+                                <li class="breadcrumb-item active"
+                                    aria-current="page">{{ student.first_name }} {{ student.last_name }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+    <main class="container" id="PDF-content">
+
+        {# ENROLMENT & ASSESSMENT DETAILS #}
+        <div class="row flex-row-reverse">
+
+            {# ASSESSMENT DETAILS #}
+            <div class="col-md-3 col-lg-4 mt-md-0 mb-4">
+                <div aria-label="Test details" class="col-12 pb-0 text-dark-emphasis">
+                    <h4 class="text-center fw-bolder text-lg-center text-dark text-sm-center mb-1">{{ assessment_details.name }}</h4>
+                </div>
+
+                {# ASSESSMENT MARK #}
+                <div class="row justify-content-center">
+                    <div aria-label="Assessment" class="d-flex justify-content-center col-sm-3 col-md-5">
+
+                        {# ASSESSMENT RETAKE BUTTON #}
+                        <button id="mark-button" class="px-3 mx-md-auto mx-lg-auto my-md-2 my-2 py-3 btn
+                        {% if attempts[-1].marks >= assessment_details['pass_score'] %} btn-outline-success
+                        {% else %} btn-outline-danger {% endif %} shadow rounded-5" type="button">
+                            <span class="fw-bold fs-2 text-white-emphasis border-1">
+                                {% if attempts[-1].marks < assessment_details['pass_score'] %}
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                {% else %}
+                                <i class="fa-solid fa-award"></i>
+                                {% endif %}
+                                Retake
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {# ENROLMENT DETAILS #}
+            <div class="col-md-9 col-lg-8">
+
+                {# STUDENT DETAILS #}
+                <div class="col-10">
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Student Name:</span>
+                        <span aria-label="Student Name" class="text-dark fw-bold">{{ student.first_name }} {{ student.last_name }}</span>
+                    </h5>
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Student ID:</span>
+                        <span class="fs-6">{{ student.id }}</span>
+                    </h5>
+                </div>
+
+                {# COURSE DETAILS #}
+                <div class="col-12">
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Module:</span>
+                        <span class="fs-6">{{ module.module_name }}</span>
+                    </h5>
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Module code:</span>
+                        <span class="fs-6">{{ module.module_code }}</span>
+                    </h5>
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Assessment type:</span>
+                        <span class="fs-6">Formative assessment</span>
+                    </h5>
+                    <h5 class="text-dark-emphasis mb-0">
+                        <span class="fs-6 details-title">Assessment period:</span>
+                        <span class="fs-6">{{ assessment.start_date.strftime("%d %B %Y") }} - {{ assessment.end_date.strftime("%d %B %Y") }}</span>
+                    </h5>
+                </div>
+
+                {# DOWNLOAD OPTION #}
+                <div class="col-10 mt-4">
+                    <button type="button" class="btn btn-dark btn-sm rounded-0" id="downloadPDF">
+                        <i class="fa-solid fa-download"></i>
+                        Download PDF
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        {# COMPARISON CHARTS #}
+        <div class="container my-4" id="img-container">
+            <div class="row d-flex justify-content-between">
+                <div class="col-6 canvas-container align-self-center justify-content-center">
+                    <canvas id="overview-radar"></canvas>
+                </div>
+                <div class="col-6 canvas-container align-self-center justify-content-center">
+                    <canvas id="overview-bar"></canvas>
+                </div>
+            </div>
+        </div>
+
+        {# ATTEMPTS DETAILS #}
+        <div class="d-flex flex-column-reverse">
+            {% for attempt in attempts %}
+            <div type="button" class="btn btn-light border p-2 mt-3 position-relative" data-bs-toggle="modal" data-bs-target="#modal{{ loop.index }}">
+                <div class="position-absolute top-0 end-0" id="best-container">
+                {% if attempts_details[attempt.id].h_score == True %}
+                    <button class="btn btn-sm btn-outline-danger" disabled><i class="fa-solid fa-flag"></i> Best Score</button>
+                {% endif %}
+                </div>
+                <h4 class="text-dark">
+                    Attempt {{ loop.index }}
+                </h4>
+                <div class="row d-flex justify-content-between">
+                    <div class="container col-5 text-start my-2">
+                        <h5 class="text-dark-emphasis mb-0">
+                            <span class="fs-6">Attempt date:</span>
+                            <span class="fs-6">{{ attempt.created_date.strftime("%d %B %Y") }}</span>
+                        </h5>
+                        <h5 class="text-dark-emphasis mb-0">
+                            <span class="fs-6">Duration:</span>
+                            <span class="fs-6">{{ attempts_details[attempt.id].duration }} mins</span>
+                        </h5>
+                    </div>
+                    <div class="container col-5 text-start my-2">
+                        <h5 class="text-dark-emphasis mb-0">
+                            <span class="fs-6">Score:</span>
+                            <span class="fs-6">{{ attempt.marks }}</span>
+                        </h5>
+                        <h5 class="text-dark-emphasis mb-0">
+                            <span class="fs-6">Feedback:</span>
+                            <span class="fs-6">{{ attempts_details[attempt.id].feedback }}</span>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="modal{{ loop.index }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Attempt {{ loop.index }}</h1>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row d-flex justify-content-between my-3">
+                            <div class="col">
+                            <small>Attempt Date: {{ attempt.created_date }}</small>
+                                <br>
+                            <small>Duration: {{ attempts_details[attempt.id].duration }} mins</small>
+                            </div>
+                            <div class="col">
+                            <small>
+                                Score: {{ attempt.marks }} / {{ assessment_details['total_score'] }}
+                            </small>
+                                <br>
+                            <small>Feedback: {{ attempts_details[attempt.id].feedback }}</small>
+                            </div>
+                        </div>
+
+                        {% if attempts_details[attempt.id]['wrong_questions'] == [] %}
+                        <p class=""> <i class="fa-solid fa-thumbs-up"></i> <em><b>Well done! You answered all questions correctly!</b></em></p>
+                        {% else %}
+                        <p class=""> <i class="fa-solid fa-gift"></i> <em><b>Error Notebook</b></em></p>
+                        {% for i in range(attempts_details[attempt.id]['wrong_questions']|length) %}
+                            <p class="card-text">
+                                Q{{ attempts_details[attempt.id]['wrong_questions_numbers'][i] }}: {{ attempts_details[attempt.id]['wrong_questions'][i].question }}
+                                {% for tag in attempts_details[attempt.id]['wrong_questions'][i].tags.replace(' ', '').split(',') %}
+                                <button class="btn btn-secondary btn-sm" disabled>{{ tag }}</button>
+                                {% endfor %}
+                            </p>
+                            <ul class="list-group">
+                                {% for option in attempts_details[attempt.id]['wrong_questions'][i].answers %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <small>{{option}}</small>
+                                    <div>
+                                    {% if option in attempts_details[attempt.id]['wrong_answers'][i] %}
+                                    <span class="badge {% if attempts_details[attempt.id]['wrong_questions'][i].answers[option] == True %} bg-success {% else %} bg-danger {% endif %} rounded-pill">selected</span>
+                                    {% if attempts_details[attempt.id]['wrong_questions'][i].answers[option] == True %}
+                                    <span class="badge bg-success rounded-pill">correct answer</span>
+                                    {% endif %}
+                                    {% else %}
+                                        {% if attempts_details[attempt.id]['wrong_questions'][i].answers[option] == True %}
+                                        <span class="badge bg-danger rounded-pill">not selected</span>
+                                        <span class="badge bg-success rounded-pill">correct answer</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="button-container d-flex justify-content-between my-3">
+                                <a class="btn btn-dark btn-sm rounded-0" href="#">Comment</a>
+                                <a tabindex="0" class="btn btn-dark btn-sm rounded-0" role="button"
+                                        data-bs-toggle="popover" data-bs-trigger="focus"
+                                        data-bs-title="{{ attempts_details[attempt.id]['wrong_questions'][i].question }}"
+                                        data-bs-content="{{ explanations[attempts_details[attempt.id]['wrong_questions_numbers'][i] - 1] }}">
+                                    Explanation
+                                </a>
+                            </div>
+                            <div id="collapse{{ loop.index }}" class="collapse">
+                              <div class="card card-body">
+                                Explanation for this question.
+                              </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded-0" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-dark rounded-0" id="download{{ loop.index }}">Download as PDF</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {# CRITERIA for ASSESSMENT #}
+        <div class="container my-4">
+            <h3 class="pt-0 col-12">Criteria for {{ module.module_code }} {{ assessment_details.name }}</h3>
+            <div class="card-group mt-3">
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Distinction</h5>
+                      <p class="card-text">70% or more will be awarded if most criteria are met at ‘Distinction’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Merit</h5>
+                      <p class="card-text">60-69% will be awarded if most criteria are met at ‘Merit’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Pass</h5>
+                      <p class="card-text">50-59% will be awarded if most criteria are met at ‘Pass’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Fail</h5>
+                      <p class="card-text">49% or below will be awarded if most criteria are ‘Fail’.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+{% endblock %}
+
+{% block pagescripts %}
+    {{ super() }}
+    <script>
+
+        // Configure popover
+        $(document).ready(function(){
+            $('[data-bs-toggle="popover"]').popover();
+        });
+
+        // Configure Radar data
+        const radarData = (data1, data2) => {
+        return {
+            labels: ['Java', 'Python', 'Git', 'SQL', 'API', 'JavaScripts'],
+            datasets: [{
+                label: 'Previous attempt',
+                data: data1,
+                fill: true,
+                backgroundColor: 'rgba(240, 240, 240, 0.2)',
+                borderColor: '#9BA4B5',
+                pointBackgroundColor: '#9BA4B5',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(240, 240, 240)'
+            }, {
+                label: 'Final attempt',
+                data: data2,
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: '#394867',
+                pointBackgroundColor: '#394867',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }]}
+        };
+
+        // Configure radar setting
+        const radarConfig = (data1, data2) => {
+            return {
+            type: 'radar',
+            data: radarData(data1, data2),
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                elements: {line: {borderWidth: 3}}
+            }}
+        };
+
+        console.log({{ student.id }})
+
+        // Configure Bar&Line data
+        const configMix = (data1, data2) => {
+            const times = {{ attempt_times }}
+            var x_time  = ['1st attempt', '2nd attempt', '3rd attempt', '4th attempt'];
+            var mixConfig = {
+                type: 'bar',
+                data: {
+                    labels: x_time.slice(0, times),
+                    datasets: [{
+                        type:'line',
+                        label: 'Score',
+                        fill:false,
+                        backgroundColor: 'rgb(241, 246, 249)',
+                        borderColor: 'rgb(33, 42, 62)',
+                        data: data1,
+                        yAxisID: 'y1'
+                    }, {
+                        label: 'Duration',
+                        fill: true,
+                        backgroundColor: 'rgb(155, 164, 181)',
+                        borderColor: 'rgb(254, 242, 244)',
+                        data: data2,
+                        yAxisID: 'y2'
+                    }]
+                },
+                options: {
+                    legend: {position:'bottom', usePointStyle:true},
+                    maintainAspectRatio:false,
+                    responsive: true,
+                    title: {display: false},
+                    tooltips: {mode: 'index', intersect: false},
+                    hover: {mode: 'nearest', intersect: true},
+                    scales: {
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                        }
+                    }
+                }
+            }
+            return mixConfig
+        }
+
+
+        // Draw Radar graph for last two attempts
+        const drawRadar = (data1, data2) => {
+            var ctx = document.getElementById("overview-radar").getContext('2d')
+            var chart = new Chart(ctx, radarConfig(data1, data2))
+        }
+
+        const drawBar = (data1, data2) => {
+            var ctx = document.getElementById("overview-bar").getContext('2d')
+            var chart = new Chart(ctx, configMix(data1, data2))
+        }
+
+        fetch('/return_formative_individual/' + {{ assessment.id }} + '/' + {{ student.id }})
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            drawBar(data[1], data[0])
+            drawRadar(data[2], data[3])
+        })
+
+        var allAttempts = {{ attempt_times }}
+        for (var i = 1; i < allAttempts; i++) {
+            document.getElementById(`download${i}`).addEventListener('click', (e) => {
+            e.preventDefault()
+            console.log('click download')
+            console.log(`modal${i-1}`)
+
+            const pdfContent = document.getElementById(`modal${i-1}`)
+            html2pdf().from(pdfContent).save('{{ module.module_code }}_{{ assessment_details.name }}_{{ student.id }}_attempt_' + i + '_report.pdf')
+            })
+        }
+
+    </script>
+{% endblock %}

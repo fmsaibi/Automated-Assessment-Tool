@@ -1,0 +1,52 @@
+<div class="modal fade" id="markModal" tabindex="-1" aria-labelledby="markModalLabel"
+     aria-hidden="true" data-backdrop=true>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="markModalLabel">Change Mark
+                    for {{ enrolmentDetails.student }}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            {# MARK FORM #}
+            <form id="mark-form" action="{{ url_for('report.update_marks', attempt_id=attempt_id) }}"
+                  method="post">
+                <div class="modal-body">
+
+                    {{ markForm.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ markForm.marks.label() }}
+                        {{ markForm.marks(class="form-control", size=32, min="0", id="marks-field") }}
+                        {% for error in markForm.marks.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ markForm.reason.label() }}
+                        {{ markForm.reason(class="form-control",id="editor-reason") | safe }}
+                        {% for error in markForm.marks.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer flex-row">
+{#                    <button class="btn btn-dark rounded-0 me-auto"#}
+{#                            data-bs-target="#feedbackModalToggle"#}
+{#                            data-bs-toggle="modal"><i#}
+{#                            class="fa-solid me-2 fa-arrow-left"></i>Edit#}
+{#                        feedback#}
+{#                    </button>#}
+                    <button data-bs-dismiss="modal" type="button"
+                            class="btn btn-secondary rounded-0">
+                        Close
+                    </button>
+                    <button type="submit" name="submit"
+                            class="btn btn-primary rounded-0 float-start"
+                            onclick="saveMark()">Save Mark
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

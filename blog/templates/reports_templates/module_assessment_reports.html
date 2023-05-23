@@ -1,0 +1,516 @@
+{% extends "index.html" %}
+
+{% block title %} {{ assessment_name }} Reports{% endblock %}
+{% block headtags %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='reports.css') }}">
+    <script src="https://kit.fontawesome.com/f583ca8d25.js" crossorigin="anonymous"></script>
+    <!-- Chart JS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Download PDF Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="bg-dark text-white" data-bs-theme="dark">
+        <div class="container-sm container-fluid d-flex flex-column text-left ">
+            <div class="row flex-grow-1 text-left">
+                <div class="rounded-0">
+                    <div class="container">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-1 mb-2 p-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('report.home') }}">Reports</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ assessment_name }}
+                                </li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <header>
+
+    </header>
+
+    <div class="container-fluid" id="PDF-content">
+    <!--Upper page of report-->
+    <div class="row">
+
+    <!--Sidebar: Dashboard & List & Export -->
+    <nav class="d-flex align-items-center col-lg-2 col-md-3 d-md-block bg-body-tertiary sidebar collapse">
+        <div class="position-sticky sidebar-sticky mt-3">
+            <ul class="nav flex-column" id="dashboard-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" id="boardButton">
+                    Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" id="listButton">
+                    Students
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('download_assessment_data', a_id=assessment.id) }}" id="downloadCSV">
+                    Export as CSV
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" id="downloadPDF">
+                    Export as PDF
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!--Report Title-->
+    <div class="container col-lg-10 my-2">
+        <h1>Module {{ module_code }} {{ assessment_name }} Cohort Report</h1>
+        {# MODULES #}
+        <!--Cohort Title-->
+        <div class="container my-4 text-nowrap">
+            <h5 class="text-dark-emphasis mb-0">
+                <span class="fs-6 details-title">Module: </span>
+                <span class="fs-6">{{ module.module_name }}</span>
+            </h5>
+            <h5 class="text-dark-emphasis mb-0">
+                <span class="fs-6 details-title">Module code: </span>
+                <span class="fs-6">{{ module.module_code }}</span>
+            </h5>
+            <h5 class="text-dark-emphasis mb-0">
+                <span class="fs-6 details-title">Assessment type: </span>
+                {% if assessment.is_formative: %}
+                <span class="fs-6">Formative assessment</span>
+                {% else: %}
+                <span class="fs-6">Summative assessment</span>
+                {% endif %}
+            </h5>
+            <h5 class="text-dark-emphasis mb-0">
+                <span class="fs-6 details-title">Assessment date: </span>
+                <span class="fs-6">{{ assessment.start_date.strftime("%d %B %Y") }}</span>
+            </h5>
+        </div>
+    </div>
+
+    </div>
+
+    <main>
+
+        {# Overall performance #}
+        <div class="container" id="overview-data">
+            <div class="row justify-content-evenly my-4">
+                <div class="col-sm-3 mb-6 mb-sm-0">
+                  <div class="card border w-100">
+                    <div class="card-body">
+                        <i class="fa-solid fa-users fa-3x" style="float: left; margin: 10px;"></i>
+                        <h5 class="card-title">{{ attempts|length }}</h5>
+                        <p class="card-text fs-6 lh-1">Total students</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-3 mb-6 mb-sm-0">
+                    <div class="card border w-100">
+                    <div class="card-body">
+                        <i class="fa-solid fa-scroll fa-3x" style="float: left; margin: 10px;"></i>
+                        <h5 class="card-title">{{ assessment.question_id_score|length }}</h5>
+                        <p class="card-text fs-6 lh-1">Total questions</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-sm-3 mb-6 mb-sm-0">
+                    <div class="card border w-100">
+                    <div class="card-body">
+                        <i class="fa-solid fa-calculator fa-3x" style="float: left; margin: 10px;"></i>
+                        <h5 class="card-title">70 / 110</h5>
+                        <p class="card-text fs-6 lh-1">Average score</p>
+                      </div>
+                    </div>
+                </div>
+                <div class="col-sm-3 mb-6 mb-sm-0">
+                    <div class="card border w-100">
+                    <div class="card-body">
+                        <i class="fa-solid fa-clock fa-3x" style="float: left; margin: 10px;"></i>
+                        <h5 class="card-title">16 / 30</h5>
+                        <p class="card-text fs-6 lh-1">Average time used</p>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview charts -->
+            <div class="data-cards row justify-content-between my-4">
+                <div class="chart-container col-lg-5">
+                <canvas id="overview-distribution"></canvas>
+                </div>
+                <div class="chart-container col-lg-5 align-self-center">
+                <canvas id="overview-time"></canvas>
+                </div>
+            </div>
+
+            {# Question list #}
+            <!--collapse all & Open aLl-->
+            <div class="row my-2" id="accordianButtons-container">
+                <div class="float-start col-lg-8 col-md-7 col-8 me-auto">
+                    <h3 class="pt-0 col-12">Questions and Answers</h3>
+                </div>
+                <div class="float-end float-end ms-auto my-auto col-lg-4 col-md-5 col-4">
+                    <div id="accordion-buttons" class="text-dark-emphasis">
+                        <button class="btn btn-outline-light text-dark-emphasis ms-auto my-auto p-0" onclick="openAll()">
+                            <span class="accordion-button-text ps-1 pb-1"><u>Expand All</u></span>
+                            <i class="fa-solid fa-angles-down pe-1"></i>
+                        </button>
+                        <button class="btn btn-outline-light text-dark-emphasis ms-auto p-0" onclick="closeAll()" style="display:none">
+                            <span class="accordion-button-text ps-1 pb-1"><u>Collapse All</u></span>
+                            <i class="fa-solid fa-angles-up pe-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!--A List of questions and answers-->
+            <div class="accordion container" id="question-list">
+            {% for i in range(assessment.question_id_score|length) %}
+            <div class="accordian-item row my-2 border">
+                <h2 class="accordion-header">
+                    <button class="accordion-button d-flex" type="button" data-bs-toggle="collapse" data-bs-target="#accordion{{ i }}" aria-expanded="true" aria-controls="accordion{{ i }}">
+                        <span class="fw-bold pe-3">Q{{ i+1 }}:</span>
+                        <span class="fw-bolder pe-3">{{ questions[i].question }}</span>
+                        {% if count[i] == 0 %}
+                            <i aria-hidden="true" class="fa mark-indicator fa-check fa-xl" style="color: var(--bs-success);"></i>
+                            <span class="ms-2 fa" aria-hidden="true" style='font-family: cera-round-pro, "Helvetica Neue", "Helvetica", sans-serif; font-weight: bold'>No one answered incorrectly!</span>
+                        {% else %}
+                            <i aria-hidden="true" class="fa mark-indicator fa-times fa-xl" style="color: var(--bs-danger);"></i>
+                            <span class="ms-2 fa" aria-hidden="true" style='font-family: cera-round-pro, "Helvetica Neue", "Helvetica", sans-serif; font-weight: bold'>Answered incorrectly {{ count[i] }} times</span>
+                        {% endif %}
+                    </button>
+                </h2>
+                <div id="accordion{{ i }}" class="accordion-collapse collapse show">
+                    <div class="options-container col-7 float-start">
+                        <ul class="list-group list-group-flush mt-2">
+                            {% for option in questions[i].answers %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                {{ option }}
+                                {% if questions[i].answers[option] == True %}
+                                <span class="badge bg-dark rounded-pill">√</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="button-container d-flex justify-content-between my-3">
+                            <a class="btn btn-dark btn-sm rounded-0" href="#">Comment</a>
+                            <a tabindex="0" class="btn btn-dark btn-sm rounded-0" role="button"
+                                    data-bs-toggle="popover" data-bs-trigger="focus"
+                                    data-bs-title="{{ questions[i].question }}"
+                                    data-bs-content="Explanation for question {{ loop.index }}">
+                                Explanation
+                            </a>
+                        </div>
+                        <div id="collapse{{ i }}" class="collapse">
+                          <div class="card card-body">
+                            Explanation for this question.
+                          </div>
+                        </div>
+                    </div>
+                <div class="col-5 float-end align-self-center"><canvas id="chart{{ i }}"></canvas></div>
+            </div>
+            </div>
+            {% endfor %}
+            </div>
+        </div>
+        <!-- Student List Table -->
+        <div class="container mt-3 visually-hidden" id="student_list_table">
+            <div class="table-responsive p-3">
+                <table id="data" class="table align-items-center tables-border table-striped table-bordered ">
+                    <thead>
+                    <tr class="align-middle">
+                        <th scope="col" class="col-1">Student ID</th>
+                        <th scope="col" class="col-2">Student Name</th>
+                        <th scope="col" class="text-center col-1">Time of submission</th>
+                        <th scope="col" class="col-1 text-center">Duration</th>
+                        <th scope="col" class="col-1 text-center">Mark</th>
+                        <th scope="col" class="col-1 text-center">Pass/Fail</th>
+                        <th scope="col" class="col-1 text-center">Report Link</th>
+                    </tr>
+                    </thead>
+                    <tbody class="">
+                    {% for attempt, user in attempts %}
+                        {% if user.id == attempt.uid or user.access_type=='lecturer' %}
+                            <tr>
+                                <td class="align-middle">{{ attempt.uid }}</td>
+                                <td class="align-middle">
+                                    {{ user.first_name }} {{ user.last_name }}
+                                </td>
+                                <td class="text-center align-middle">{{ attempt.created_date.strftime("%d %B %Y %H:%M") }}</td>
+                                <td class="text-center align-middle">{{ attempt.created_date - assessment.start_date }}</td>
+                                <td class="text-center align-middle">
+                                    {{ attempt.marks }}
+                                </td>
+                                <td class="text-center align-middle">
+                                {% if attempt.marks != None %}
+                                 {% if attempt.marks >= pass_score %}
+                                        pass  <i aria-hidden="true"
+                                           aria-label="Selected and correct"
+                                           class="fa selection-indicator fa-check fa-xl"
+                                           style="color: var(--bs-success);"></i>
+                                    {% else %}
+                                        fail  <i aria-hidden="true"
+                                           aria-label="Selected and wrong"
+                                           class="fa selection-indicator fa-times fa-xl"
+                                           style="color: var(--bs-danger);"></i>
+                                    {% endif %}
+                                {% endif %}
+
+                                </td>
+                                <td class="text-center align-middle">
+                                    <a href="{{ url_for('report.view_summative_report', module_code=attempt.module_code, assessment_id=attempt.assessment_id, uid=attempt.uid) }}"
+                                       class="px-3 p-2 my-1 btn btn-dark rounded-0">
+                                        Report
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </main>
+    <footer>
+
+    </footer>
+
+{% endblock %}
+
+
+{% block pagescripts %}
+    {{ super() }}
+    <script>
+
+    $(document).ready(function () {
+      $('#data').DataTable({
+          "columnDefs": [
+              {"orderable": false, "targets": 6}
+          ]
+      });
+    });
+
+    $(document).ready(function(){
+            $('[data-bs-toggle="popover"]').popover();
+        });
+
+    // Define a function to check the status of the accordions
+        function checkAccordionStatus() {
+            console.log("CheckStatus invoked")
+
+            const buttons = document.querySelectorAll(".accordion-button"); // Get all the accordion buttons and contents
+
+            let openCount = 0; // Initialize a variable to count the number of open accordions
+            // Loop through each accordion element, check if the accordion is expanded, increment counter
+            for (let i = 0; i < buttons.length; i++) {
+                if (!buttons[i].classList.contains("collapsed")) {
+                    openCount++;
+                }
+            }
+            // Check if all accordions are closed
+            if (openCount === 0) {
+                // Show the open all button and hide the close all button
+                document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                    "block";
+                document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                    "none";
+            }
+            // Check if all accordions are open
+            else if (openCount === buttons.length) {
+                // Hide the open all button and show the close all button
+                document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                    "none";
+                document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                    "block";
+            }
+        }
+
+        // Call the checkStatus function when the page loads
+        window.onload = checkAccordionStatus;
+
+        // Get all the accordion item buttons
+        const accordionItemButtons = document.querySelectorAll(".accordion-button");
+        const toggleAllButtons = document.querySelectorAll("#accordion-buttons button");
+
+        // Add a listener for the click event on each accordion item button
+        for (let i = 0; i < accordionItemButtons.length; i++) {
+            accordionItemButtons[i].addEventListener("click",
+                // Call the checkStatus function
+                checkAccordionStatus);
+        }
+        // Add a listener for the click event on the toggle all button
+        for (let i = 0; i < toggleAllButtons.length; i++) {
+            toggleAllButtons[i].addEventListener("click",
+                // Call the checkStatus function
+                checkAccordionStatus);
+        }
+
+        {# Open all accordions function #}
+
+        function openAll() {
+            console.log("Opening all accordions using the function")
+            const buttons = document.querySelectorAll(".accordion-button");
+            const contents = document.querySelectorAll(".accordion-collapse");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.toggle("collapsed");
+                const bsCollapse = new bootstrap.Collapse(contents[i], {toggle: false});
+                bsCollapse.show();
+            }
+            document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                "none";
+            document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                "block";
+        }
+
+        {# Close all accordions function #}
+
+        function closeAll() {
+            console.log("Closing all accordions using the function")
+            const buttons = document.querySelectorAll(".accordion-button");
+            const contents = document.querySelectorAll(".accordion-collapse");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.toggle("collapsed");
+                const bsCollapse = new bootstrap.Collapse(contents[i], {toggle: false});
+                bsCollapse.hide();
+            }
+            document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                "block";
+            document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                "none";
+        }
+
+    const $studentList = document.getElementById('student_list_table')
+    const $overviewData = document.getElementById('overview-data')
+    const $boardButton = document.getElementById("boardButton")
+    const $listButton = document.getElementById("listButton")
+    const $downloadPDFButton = document.getElementById("downloadPDF")
+
+    // Render question content and Draw bar chart for each question
+    const drawBarForQ = ( data ) => {
+        for ( var i = 0; i < data.length; i++ ) {
+            var ctx = document.getElementById('chart' + i).getContext('2d')
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data[i].options.map((o) => `${o.slice(0, 7)} ...`),
+                    datasets:[{
+                        label: data[i].content,
+                        data: data[i].count,
+                        barThickness: 25,
+                        backgroundColor: 'black'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            ticks: {precision: 0}
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    // Draw distribution for overview
+    const drawDistribution = ( data ) => {
+        var ctx = document.getElementById('overview-distribution').getContext('2d')
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data[0],
+                datasets: [{
+                    label: "Number of students",
+                    data: data[1],
+                    barThickness: 30,
+                    backgroundColor: 'black'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        ticks: {precision: 0}
+                    }
+                }
+            }
+        })
+    }
+
+    //Draw time spent for overview
+    const drawTimeSpent = (data) => {
+        var ctx = document.getElementById('overview-time').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data[0],
+                datasets: [{
+                    label: 'Time spent (min)',
+                    data: data[1],
+                    backgroundColor: 'black'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: true,
+            }
+        })
+    }
+
+    // Render the assessment information
+    fetch('/return_assessment_overview_for_js/' + {{ assessment.id }})
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        drawDistribution(data.grades)
+        drawTimeSpent(data.time)
+    })
+
+    // Render the assessment information
+    fetch('/return_assessment_data_for_js/' + {{ assessment.id }})
+    .then(response => response.json())
+    .then(data => {
+        drawBarForQ(data)
+    })
+
+    // Switch to dashboard
+    $boardButton.addEventListener('click', (e) => {
+        e.preventDefault()
+        $overviewData.classList.remove("visually-hidden")
+        $studentList.classList.add("visually-hidden")
+    });
+
+    // Switch to student list
+    $listButton.addEventListener('click', (e) => {
+        e.preventDefault()
+        $overviewData.classList.add("visually-hidden")
+        $studentList.classList.remove("visually-hidden")
+    })
+
+    // Allow user to Download PDF
+    $downloadPDFButton.addEventListener('click', (e) => {
+        e.preventDefault()
+
+        $overviewData.classList.remove("visually-hidden")
+        $studentList.classList.remove("visually-hidden")
+
+        const pdfContent = document.getElementById('PDF-content')
+        html2pdf().from(pdfContent).save('{{ module_code }}_{{ assessment_name }}_cohort_report.pdf')
+    })
+  </script>
+
+{% endblock %}
+
+

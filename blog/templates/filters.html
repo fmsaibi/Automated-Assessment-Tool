@@ -1,0 +1,116 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+<style>
+/* .btn-styled {
+
+  position: absolute;
+  top: 100px;
+  background-size: auto;
+  background-color: black;
+  box-shadow: inset;
+  color:white;
+  
+
+  left:10px;
+  width: 120px;
+  transform: translateY(-50%);
+  font-size: 20px;
+} */
+a.test{
+    color: white;
+
+}
+
+</style>
+
+<br>
+<button class="btn btn-lg btn-dark rounded-0",type="button" ><a class="test" href="{{ url_for('formative_assessment')}}">Back</a></button>
+<br><br>
+<h2>Select The Questions To Create Formative Assessment</h2>
+
+<script>
+  //Add Sorting to the table _____________________________________________________________________________
+  $(document).ready(function() {
+      $('.table').DataTable({
+          "pageLength": 25,
+          "order": [[5, "desc"]] // "2" represents the index of the "Created" column, "desc" stands for descending order
+      });
+  });
+</script>
+<!-- Questions list Table -->
+
+<form method="POST" action="/assessement/question/create_assessment/formative_assessment/filters/">
+  {{ form.csrf_token }}
+
+  <table class="table table-bordered table-striped">
+      <br>
+      <thead>
+          <tr>
+              <th class="text-center" scope="col">#</th>
+              <th class="text-center" >ID</th>
+              <th class="text-center" >Question</th>
+              <th class="text-center" >Type</th>
+              <th class="text-center" >Module</th>
+              <th class="text-center" >level</th>
+              <th class="text-center" >Created By</th>
+              <th class="text-center" >Tags</th>
+              <th class="text-center" >Set</th>                        
+          </tr>
+      </thead>
+      <tbody>
+          {% for question in filters %}  
+              <tr>
+                  <td class="text-center" scope="row">{{ loop.index }} </td>
+                  <td class="text-center">{{ question.id }}</td>
+                  <td>{{ question.question }}</td>
+                  {% if question.category == "single" %}
+                      <td class="text-center" >Single Choice</td>
+                  {% else %}
+                      <td class="text-center" >Multiple choice</td>
+                  {% endif %}
+                  <td class="text-center" >{{ question.module_code }}</td>
+                  {% if question.level == '3' %}
+                      <td class="text-center" >Hard</td>
+                  {% elif question.level == '2' %}
+                      <td class="text-center" >Medium</td>
+                  {% else %}
+                      <td class="text-center" >Easy</td>
+                  {% endif%}
+            
+                  {% if question.initiator == 1000 %}
+                      <td class="text-center" >Fahad Al Khusaibi</td>
+                  {% elif question.initiator == 1001 %}
+                      <td class="text-center" >Aldridge Nyamowa</td>
+                  {% elif question.initiator == 1002 %}
+                      <td class="text-center" >Chao Zeng</td>
+                  {% elif question.initiator == '1003' %}
+                      <td class="text-center" >Kehen Zhu</td>
+                  {% elif question.initiator == 1004 %}
+                      <td class="text-center" >Kumi Kuwai</td>
+                  {% elif question.initiator == 1005 %}
+                      <td class="text-center" >Ramesh Suddu</td>
+                  {% elif question.initiator == '1006' %}
+                      <td class="text-center" >Chen Sun</td>
+                  {% else %}
+                      <td class="text-center" >John Doe</td>
+                  {% endif%}
+               
+                  <td class="text-center">{{ question.tags }}</td>
+                  <td class="text-center" ><input class="form-check-input rounded-circle" type="checkbox" name="set-question" id="set-question-{{ question.id  }}" value="{{ question.id }}"></td>
+              </tr>
+              
+              
+            </form>
+          {% endfor %}
+      </tbody>
+      
+  </table>
+  <input class="btn btn-lg btn-dark rounded-0" type="submit" value="Save">
+
+
+
+
+
+
+{% endblock content %}

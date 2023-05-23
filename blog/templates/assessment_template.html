@@ -1,0 +1,75 @@
+
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+{% for question in questions %}
+<div class="card-body">
+    <div class="shadow-lg rounded">
+        <form action="" method="POST">
+            {{ form.csrf_token }}
+            <div class="container">
+
+                    <!-- Body -------------------------------------->
+                    <div class="card-body">
+                        <!-- Questions ------------------------------------>
+                        <div class="input-group">
+                            <!-- Text Filed -->
+                            <div class="col-12">
+                                {{ loop.index }}) {{ question.question }}
+                            </div>
+                        </div>
+                        {% if question.category == "single" %}
+                            <!-- Single ------------------------------------>
+                            <div id="single" style="display: block;">
+                                <div id="singlebox_container">
+                                    <!-- Input fields will be added here -->
+                                    {% for answer in question.answers %}
+                                        <div class="form-group">
+                                            <br>
+                                            <div class="input-group" id="CheckBoxTag" >
+                                                <!-- Multiple Choice Checkbox -->
+                                                <input class="form-check-input rounded-circle" type="radio" name="{{ question.id }}" id="singlebox_{{ loop.index }}"  style="margin-right: 10px;" value="{{ loop.index }}" >
+                                                <!-- Answer -->
+                                                {{ answer }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+
+                            <!-- Multiple -------------------------------------->
+                            <div id="multiple" style="display: block;">
+                                <div id="multiple_container">
+                                    <!-- Input fields will be added here -->
+                                    {% for answer in question.answers %}
+                                        <div class="form-group">
+                                            <br>
+                                            <div class="input-group" id="MultipleBoxTag" >
+                                                <!-- Multiple Choice Checkbox -->
+                                                <input class="form-check-input rounded-circle" type="checkbox" name="{{ question.id }}" id="multiplebox_{{ loop.index }}" style="margin-right: 10px;" value="{{ loop.index }}" >
+                                                <!-- Answer  -->
+                                                {{ answer }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                <br>
+            </div>
+        </form>
+    </div>
+</div>
+<br>
+{% endfor %}
+    <div class="container ">
+        <button class="ms-2 mt-2 btn btn-dark rounded-0" type="submit">Submit</button>
+    </div>
+
+
+{% endblock content %}
+

@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <form method="POST">
+          {{ form.csrf_token }}
+          <div class="form-floating">
+            <p>Hi {{ user.first_name }}, please enter your new password.</p>
+          </div>
+          <br>
+          <div class="form-floating">
+            <p>{{ form.password.label }}</p>
+            {{ form.password(class="form-control") }}
+          </div>
+          <br>
+          <div class="form-floating">
+            <p>{{ form.confirm_password.label }}</p>
+            {{ form.confirm_password(class="form-control") }}
+          </div>
+          <br>
+          {{ form.submit(class="btn btn-dark btn-lg rounded-0 py-2 px-4") }}
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  {% endblock content %}

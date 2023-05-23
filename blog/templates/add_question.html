@@ -1,0 +1,539 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+
+  <!-- Custom Script -->
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.tagsinput/0.8.0/bootstrap-tagsinput.css">
+<script src="https://cdn.jsdelivr.net/bootstrap.tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+<style>
+
+    /* customisze bootstrap-tagsinput to take advantage of column width*/
+    .bootstrap-tagsinput{
+        width: 100%;
+        height: 50%;
+        border-radius: 0;
+        display: block;
+    }
+
+    /* customisze label tag */
+    .tag.label.label-info {
+        display: inline-block;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    @media (max-width: 900px) { /* styles for mobile */
+        .card{
+          padding: 10px;
+          min-height: 100vh;
+        }
+    }
+</style>
+
+<script>
+
+    //  Tags
+    $(document).ready(function() {
+			// Define an array of colors
+			var colors = ["#0d6efd", "#fd7e14", "#198754", "#ffc107"];
+
+			// Initialize the color counter to 0
+			var colorIndex = 0;
+
+			// Set a sequential color for each <span> element with the class tag label label-info
+			$(".tag.label.label-info").each(function() {
+
+                $(this).attr("name", "tags");
+                $(this).attr("id", "my-tag");
+  
+                
+				// Get the current color from the array
+				var color = colors[colorIndex];
+
+				// Set the background color of the current <span> element
+				$(this).css("background-color", color);
+
+				// Increment the color counter
+				colorIndex = (colorIndex + 1) % colors.length;
+			});
+
+			// Listen for changes to the input and update the color of any new <span> elements
+			$("input").on("itemAdded", function() {
+				// Get the newly added <span> element
+				var tag = $(".tag.label.label-info").last();
+
+				// Get the next color from the array
+				var color = colors[colorIndex];
+
+				// Set the background color of the new <span> element
+				tag.css("background-color", color);
+
+					// Increment the color counter
+				colorIndex = (colorIndex + 1) % colors.length;
+			});
+	});
+
+    function changeColor() {
+            // Get the input element
+            var tag = document.querySelector(".tag.label.label-info");
+            // Get a random color
+            var color = getRandomColor();
+
+            // Set the background color of the tag element
+			tag.style.backgroundColor = color;
+        }
+
+    function getRandomColor() {
+        // Generate a random hex color code
+        var letters = "0123456789ABCDEF";
+        var color = "#";
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    
+    // Checkbox for Single Choice
+    function singleChoiceCheckboxTag(index) {
+        let tag = `
+                <div class="form-group">
+                    <br>
+                    <div class="input-group" id="CheckBoxTag" >
+
+                        <!-- Checkbox -->
+                        <span class="input-group-text bg-transparent rounded-0" id="addon-wrapping">
+                            <input class="form-check-input rounded-circle" type="radio" name="mysinglebox" id="singlebox_${index}" value="${index}">
+
+                        </span>
+
+                        <!-- Answer Filed -->
+                        <div class="col">
+                            <input class="form-control rounded-0" type="text" placeholder="Enter Answer" required="" name="mysingletext" id="singletext_${index}">
+                        </div>
+
+                        <!-- Remove -->
+                        <div class="d-flex align-items-center text-center">
+                            <button class="btn btn-danger remove-signle-input rounded-0" type="button" id="remove_single_${index}" hidden="true" disabled>Remove</button>
+                        </div>
+                        
+                    </div>
+                </div>`;
+
+        return tag;
+    }
+
+    // Checkbox for Single Choice
+    function multipleChoiceCheckboxTag(index) {
+        let tag = `
+                <div class="form-group">
+                    <br>
+                    <div class="input-group" id="MultipleBoxTag" >
+                        
+                        <span class="input-group-text bg-transparent rounded-0" id="addon-wrapping">
+        
+                            <!-- Multiple Choice Checkbox -->
+                            <input class="form-check-input rounded-circle" type="checkbox" name="mymultiplebox" id="multiplebox_${index}" value="${index}">
+                                                
+                        </span>
+                        
+                        <!-- Answer Filed -->
+                        <div class="col">
+                            <input class="form-control rounded-0" type="text" placeholder="Enter Answer" required="" name="mymultipletext" id="multipletext_${index}">
+                        </div>
+        
+                        <!-- Remove -->
+                        <div class="d-flex align-items-center text-center">
+                            <button class="btn btn-danger remove-multiple-input rounded-0" type="button" id="remove_multiple_${index}" hidden="true" disabled>Remove</button>
+                        </div>
+                        
+                    </div>
+                </div>`;
+        return tag;
+    }
+
+    var signle_box_count = 2;
+    var multiple_box_count = 2;
+    // Show and Hide Single, Muliple choice______________________________________________________________  
+    function showTextField() {
+            // Select from drop down_______________________________________________________________   
+            var category = document.getElementById("category");
+            var single = document.getElementById("single");
+            var multiple = document.getElementById("multiple");
+            const multipleContainer = document.querySelector("#multiple_container");
+            const singleboxContainer = document.querySelector("#singlebox_container");
+            var defult =  2  //Defult no of checkbox and answer field
+            
+            if (category.value === "single") {
+
+                multipleContainer.innerHTML = ""
+                multiple_box_count = 2 
+                multiple.style.display = "none";
+                single.style.display = "block";
+                
+                for (let i = 1; i <= defult; i++) { 
+                    
+                    $("#singlebox_container").append(singleChoiceCheckboxTag(i));
+                }
+
+
+            } else if (category.value === "multiple") {
+
+                singleboxContainer.innerHTML = ""
+                signle_box_count = 2
+                single.style.display = "none";
+                multiple.style.display = "block";
+
+                for (let i = 1; i <= defult; i++) { 
+                    
+                    $("#multiple_container").append(multipleChoiceCheckboxTag(i));
+                }
+
+            } else  {
+                multipleContainer.innerHTML = ""
+                singleboxContainer.innerHTML = ""
+                single.style.display = "none";
+                multiple.style.display = "none";
+            }
+    }
+
+    $(document).ready(function() {
+        var maxInputs = 5;
+
+        // Add checbox and input for single choice
+        $('#add-single-input').click(function() {
+
+            if (signle_box_count === maxInputs) {
+                alert('Max limit reached');
+            }
+
+            // Check maximum number of inputs
+            if (signle_box_count < maxInputs) {
+
+                signle_box_count++;
+                // Clone the input group and update the ID and name attributes
+                var inputGroup = $('#singlebox_container .form-group:first').clone();
+                //Add new ID for Check box 
+                var newCheckBoxId = 'singlebox_' + signle_box_count;
+                // set checkbox to unchecked state
+                inputGroup.find('input').eq(0).prop('checked', false);
+                inputGroup.find('input').eq(0).attr({'id': newCheckBoxId}).val(`${signle_box_count}`);
+                
+                //Add new ID for Checkbox text
+                var newCheckTextId = 'singletext_' + signle_box_count;
+                inputGroup.find('input').eq(1).attr({'id': newCheckTextId}).val('');
+                //Disable and Hide Remove button
+                inputGroup.find('.remove-signle-input').prop('disabled', false).prop('hidden', false);
+                // appeding to html
+                $('#singlebox_container').append(inputGroup);
+                // Enable remove input button if there are more than 2 inputs
+                if (signle_box_count > 2) {
+                    $('.remove-signle-input').prop('disabled', false).prop('hidden', false);
+                }
+            }
+        });
+
+        // Remove checbox and input for multiple choice
+        $(document).on('click', '.remove-signle-input', function() {
+            $(this).closest('.form-group').remove();
+
+            signle_box_count--;
+            // Reset the ID and name attributes for the remaining inputs
+            $('#singlebox_container .form-group').each(function(index) {
+                
+                var newCheckBoxId = 'singlebox_' + (index + 1);
+                $(this).find('input').eq(0).attr({
+                    'id': newCheckBoxId,
+                    'value': `${(index + 1)}`
+                });
+
+                var newCheckTextId = 'singletext_' + (index + 1);
+                $(this).find('input').eq(1).attr({
+                    'id': newCheckTextId,
+                });
+            });
+            // Disable remove input button if there are only 2 inputs remaining
+            if (signle_box_count === 2) {
+                $('.remove-signle-input').prop('disabled', true).prop('hidden', true);
+            } 
+        });
+
+        // Add checbox and input for muliple choice
+        $('#add-multiple-input').click(function() {
+            // Disable add input button if maximum number of inputs is reached
+            if (multiple_box_count === maxInputs) {
+                alert('Max limit reached');
+            }
+            
+            // Check maximum number of inputs
+            if (multiple_box_count < maxInputs) {
+                multiple_box_count++;
+                // Clone the input group and update the ID and name attributes
+                var inputGroup = $('#multiple_container .form-group:first').clone();
+                //Add new ID for Check box 
+                var newCheckBoxId = 'multiplebox_' + multiple_box_count;
+                    // set checkbox to unchecked state
+                inputGroup.find('input').eq(0).prop('checked', false);
+                inputGroup.find('input').eq(0).attr({'id': newCheckBoxId}).val(`${multiple_box_count}`);
+                //Add new ID for Checkbox text
+                var newCheckTextId = 'multipletext_' + signle_box_count;
+                inputGroup.find('input').eq(1).attr({'id': newCheckTextId}).val('');
+                //Disable and Hide Remove button
+                inputGroup.find('.remove-multiple-input').prop('disabled', false).prop('hidden', false);
+                // appeding to html
+                $('#multiple_container').append(inputGroup);
+                // Enable remove input button if there are more than 2 inputs
+                if (multiple_box_count > 2) {
+                    $('.remove-multiple-input').prop('disabled', false).prop('hidden', false);
+                }
+            }      
+        });
+
+        // Remove checbox and input for multiple choice
+        $(document).on('click', '.remove-multiple-input', function() {
+            $(this).closest('.form-group').remove();
+
+            multiple_box_count--;
+            // Reset the ID and name attributes for the remaining inputs
+            $('#multiple_container .form-group').each(function(index) {
+            
+                var newCheckBoxId = 'multiplebox_' + (index + 1);
+                $(this).find('input').eq(0).attr({
+                    'id': newCheckBoxId,
+                    'value': `${(index + 1)}`
+                });
+
+                var newCheckTextId = 'multipletext_' + (index + 1);
+                $(this).find('input').eq(1).attr({
+                    'id': newCheckTextId,
+                });
+            });
+            // Disable remove input button if there are only 2 inputs remaining
+            if (multiple_box_count === 2) {
+                $('.remove-multiple-input').prop('disabled', true).prop('hidden', true);
+            }
+
+        })
+
+         // Alert user if check box is not set
+        $('#save').click(function() {
+
+            var category = document.getElementById("category");
+            var checkboxes = "";
+                
+            if (category.value === "single") {
+                checkboxes = document.getElementsByName("mysinglebox");
+    
+            }
+            else if (category.value === "multiple") {
+                checkboxes = document.getElementsByName("mymultiplebox");
+
+            }
+
+            var isChecked = false;
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    isChecked = true;
+                    break;
+                }
+            }
+            if (!isChecked) {
+
+                alert("Check on checbox is required set for correct answer");
+                event.preventDefault();
+            }
+        })
+
+        //close the windows and reset to defcult
+        $('#close_t').click(function() {
+
+            var category = document.getElementById("category");
+
+
+            if (category.value === "single") {
+
+                document.querySelector("#singlebox_container").innerHTML = ""
+                document.getElementById("single").style.display = "none";
+
+                signle_box_count = 2;
+            } 
+
+            else if (category.value === "multiple"){
+
+                document.querySelector("#multiple_container").innerHTML = ""
+                document.getElementById("multiple").style.display = "none";
+                multiple_box_count = 2;
+            }
+
+            document.getElementById("question").value = "";
+            document.getElementById("module_code").value = "";
+            category.selectedIndex = 0;
+        })
+        $('#close_b').click(function() {
+
+            var category = document.getElementById("category");
+
+
+            if (category.value === "single") {
+
+                document.querySelector("#singlebox_container").innerHTML = ""
+                document.getElementById("single").style.display = "none";
+
+                signle_box_count = 2;
+            } 
+
+            else if (category.value === "multiple"){
+
+                document.querySelector("#multiple_container").innerHTML = ""
+                document.getElementById("multiple").style.display = "none";
+                multiple_box_count = 2;
+            }
+
+            document.getElementById("question").value = "";
+            document.getElementById("module_code").value = "";
+            category.selectedIndex = 0;
+
+        })
+    })
+</script>
+
+{% if success %}
+  <script>
+    $(document).ready(function() {
+      $('#successModal').modal('show');
+    });
+  </script>
+{% endif %}
+
+
+
+
+
+<form  method="POST">
+    {{ form.csrf_token }}
+
+        <div class="card shadow-lg">
+
+            <div class="card-header border-0">
+                <div class="row ">
+                    <div class="col-11">
+                        <h3>Add Questions</h3>  
+                    </div>
+                    <div class="col-1" style="align-items: center; justify-content: center; display: flex;">
+                        <a  type="button" class="btn btn-close btn-dark rounded-0" href="{{ url_for('question') }}"  class="text-dark"></a>       
+                    </div>
+                </div>
+    
+            </div>
+
+            <div></div>
+            <!-- Body -------------------------------------->
+            <div class="card-body">
+
+                <!-- Questions ------------------------------------>
+                <div class="input-group">
+                    <!-- Text Filed -->
+                    <div class="col-12">
+                        {{ form.question(class="form-control rounded-0", type="text", placeholder="Enter Question") }}
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="col-12">
+                        <br>
+                            <label class="control-label" for="Tags">Tags</label>
+                            <input class="form-control rounded-0" name="tags" id="myTags" type="text" data-role="tagsinput">
+                    </div>
+        
+
+                    <br>
+                    <!-- Module Code Dropdown Menu -->
+                    <div class="col-6">
+                        <br>
+                        {{ wtf.form_field(form.module_code, class="form-select rounded-0 ")}}
+                    </div>
+
+                    <br>
+                    <!-- Category Dropdown Menu -->
+                    <div class="col-6">
+                        <br>
+                        {{ wtf.form_field(form.category, class="form-select rounded-0", id="category", onchange="showTextField()")}}
+                    </div>
+
+                    <!-- Level -->
+                    <div class="col-6">
+                        <br>
+                        {{ wtf.form_field(form.level, class="form-select rounded-0 ")}}
+                    </div>
+
+                    <!-- Points -->
+                    <div class="col-6">
+                        <br>
+                        {{ wtf.form_field(form.points, class="form-control rounded-0 ")}}
+                    </div>
+
+                </div>
+
+                <!-- Single ------------------------------------>
+                <div id="single" style="display: none;">
+                    <div id="singlebox_container">
+                        <!-- Input fields will be added here -->
+
+
+
+                    </div>
+                    <br>
+                    <button class="btn btn-dark rounded-0" type="button" id="add-single-input">Add Field</button>
+                    <br>
+                </div>
+
+                <!-- Multiple -------------------------------------->
+                <div id="multiple" style="display: none;">
+                    <div id="multiple_container">
+                        <!-- Input fields will be added here -->
+
+
+
+                    </div>
+                    <br>
+                    <button class="btn btn-dark rounded-0" type="button" id="add-multiple-input">Add Field</button>
+                </div>
+                <br>
+
+                <div class="text-center">
+                    {{ wtf.form_field(form.save, class="btn btn-lg btn-dark rounded-0") }}
+                </div>    
+
+            </div>
+
+        </div>
+
+        <br>
+
+</form>
+
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-0">
+            <!-- Header -------------------------------------->
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel"> Message </h5>
+                <span aria-hidden="true"></span>
+            </div>
+
+            <!-- Body -------------------------------------->
+            <div class="modal-body">
+                Question Added Successfully
+            </div>
+            <!-- Footer -------------------------------------->
+            <div class="modal-footer d-flex justify-content-center">
+                <a  type="button" class="btn btn-lg btn-dark rounded-0" href="{{ url_for('question') }}"  class="text-dark">Go Back</a> 
+                <a type="button" class="btn btn-lg btn-primary rounded-0" href="{{ url_for('add_question') }}" >Add Question</a> 
+              </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock content %}

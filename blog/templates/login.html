@@ -1,0 +1,71 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+<style>
+
+  @media (min-width: 767px) { /* styles for mobile */
+    .login-form {
+      /* common styles for both mobile and desktop */
+      padding: 30px;
+      /* Center element horizontally and vertically */
+      position: absolute; /* or position: fixed; */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    h1{
+      margin-top: 20px;
+    }
+  }
+
+  @media (max-width: 767px) { /* styles for mobile */
+    .login-form {
+      margin: 0;
+      padding: 30px;
+      min-height: 100vh;
+      min-width: 347px;
+    }
+    h1{
+      margin-top: 30px;
+    }
+  }
+
+
+</style>
+
+<div class="login-form shadow-lg">
+  <form action="/login"  method="POST">
+    {{ form.csrf_token }}
+    <div class="text-center">
+      <h1 class="fs-4 fw-bold" >Log In</h1>
+      <br>
+    </div>
+    <div>
+      <br>
+      <label class="form-label">Email address</label>
+      {{ wtf.form_field(form.email, type="text", class="form-control rounded-0") }}
+    </div>
+
+    <div>
+      <br>
+      <label class="form-label">Password</label>
+      {{ wtf.form_field(form.password, type="password", class="form-control rounded-0") }}
+    </div>
+    <br>
+    <br>
+    <div class="text-center mb-3">
+      {{ wtf.form_field(form.login, type="submit", class="btn btn-dark btn-lg rounded-0 col-12") }}
+    </div>
+
+    <div class="text-center">
+      <h6>Forget Password? <a href="{{url_for('forget')}}" class="text-dark">Click Here</a></h6>
+    </div>
+
+  </form>
+
+  <footer>
+    <br><br><br><br><br>
+    <p class="text-center">Copyright © 2022-2023 Cardiff University</p>
+  </footer>
+</div>
+{% endblock content %}

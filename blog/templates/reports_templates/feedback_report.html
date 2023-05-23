@@ -1,0 +1,652 @@
+{% extends "index.html" %}
+
+{% block title %}Student Assessment Report{% endblock %}
+{% block headtags %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='reports.css') }}">
+    <script src="https://kit.fontawesome.com/f583ca8d25.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    <!-- Chart JS Script -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Download PDF Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="bg-dark text-white" data-bs-theme="dark">
+        <div class="container-sm container-fluid d-flex flex-column text-left ">
+            <div class="row flex-grow-1 text-left">
+                <div class="rounded-0">
+                    <div class="container">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-1 mb-2 p-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('report.home') }}">Reports</a></li>
+                                <li class="breadcrumb-item"><a
+                                        href="{{ url_for('report.view_reports_list',module_code=enrolmentDetails.code, assessment_id=assessmentDetails.code) }}">{{ assessmentDetails.assessment }}</a>
+                                </li>
+                                <li class="breadcrumb-item active"
+                                    aria-current="page">{{ enrolmentDetails.student }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <header>
+
+    </header>
+    <main class="container" id="PDF-content">
+
+        {# ENROLMENT & ASSESSMENT DETAILS #}
+        <div class="row flex-row-reverse">
+
+            {# ASSESSMENT DETAILS #}
+            <div class="col-md-3 col-lg-4 mt-md-0 mb-4">
+                <div aria-label="Test details" class="col-12 pb-0 text-dark-emphasis">
+                    <h4 class="text-center fw-bolder text-lg-center text-dark text-sm-center mb-1">{{ assessmentDetails.assessment }}</h4>
+                </div>
+
+                {# ASSESSMENT MARK #}
+                <div class="row justify-content-center">
+                    <div aria-label="Assessment" class="d-flex justify-content-center col-sm-3 col-md-5">
+
+                        {# ASSESSMENT MARK BUTTON #}
+                        <button id="mark-button"
+                                class="px-3 mx-md-auto mx-lg-auto my-md-2 my-2 py-3 btn {% if assessmentDetails.marks >= assessmentDetails.passmark %} btn-outline-success {% else %} btn-outline-danger{% endif %} shadow rounded-5"
+                        {% if lecturer %}
+                        type="button"
+                                data-bs-toggle="modal" data-bs-target="#markModal"
+                        {% endif %}
+                                data-bs-mark="{{ assessmentDetails.marks }}"
+                                data-bs-passmark="{{ assessmentDetails.passmark }}">
+                            <span class="fw-bold fs-2 text-white-emphasis border-black border-bottom border-1"><span
+                                    id="mark" aria-label="Assessment mark"
+                                    class="assessment-mark">{{ assessmentDetails.marks }}</span>/{{ assessmentDetails.total }}</span><br>
+                            <small class="fw-bold text-center m-auto">{{ assessmentDetails.percentile | safe }}</small>
+                        </button>
+                    </div>
+
+                    {% if lecturer %}
+                        <div class="d-flex justify-content-center align-items-center"><button class="btn btn-dark rounded-0 mt-2 " data-bs-toggle="modal"
+                              aria-label="Edit mark button" data-bs-mark="{{ assessmentDetails.marks }}"
+                              href="#markModal" role="button">Edit mark</button></div>
+                    {% endif %}
+                </div>
+
+                {# MARK MODAL #}
+            {% if lecturer %}
+                {% include "reports_templates/mark_modal.html" %}
+            {% endif %}
+
+            </div>
+
+            {# ENROLMENT DETAILS #}
+            <div class="col-md-9 col-lg-8">
+
+                {# STUDENT DETAILS #}
+                <div class="col-10">
+                    <h5 class="text-dark-emphasis mb-0"><span class="fs-6 details-title">Student Name:</span><span
+                            aria-label="Student Name"
+                            class="text-dark fw-bold">{{ enrolmentDetails.student }}</span>
+                    </h5>
+                    <h5 class="text-dark-emphasis mb-0"><span
+                            class="fs-6 details-title">Student ID:</span><span
+                            class="fs-6">{{ enrolmentDetails.student_id }}</span></h5>
+                </div>
+
+                {# COURSE DETAILS #}
+                <div class="col-12">
+                    <h5 class="text-dark-emphasis mb-0"><span
+                            class="fs-6 details-title">Module:</span><span
+                            class="fs-6">{{ enrolmentDetails.module_name }}</span></h5>
+                    <h5 class="text-dark-emphasis mb-0"><span
+                            class="fs-6 details-title">Module code:</span><span
+                            class="fs-6">{{ enrolmentDetails.code }}</span></h5>
+                    <h5 class="text-dark-emphasis mb-0"><span
+                            class="fs-6 details-title">Submitted:</span><span
+                            class="fs-6">{{ assessmentDetails.submission_time }}</span></h5>
+                    <h5 class="text-dark-emphasis mb-0"><span
+                            class="fs-6 details-title">Due:</span><span
+                            class="fs-6">{{ assessmentDetails.due_time }}</span></h5>
+                    {% if assessmentDetails.submission_time > assessmentDetails.due_time %}
+                        <h5 class="text-danger mb-0"><span
+                                class="fw-bold">Late submission</span></h5>
+                    {% endif %}
+                </div>
+
+                {# DOWNLOAD OPTION #}
+                <div class="col-10 mt-4">
+                    <button type="button" class="btn btn-dark btn-sm rounded-0" id="downloadPDF">
+                        <i class="fa-solid fa-download"></i>
+                        Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {# FEEDBACK #}
+        <div class="row flex-row-reverse">
+
+            {# MARK CHANGE DETAILS #}
+            <div class="col-md-4">
+            <div class="mx-auto">
+             {% if mark_change_reason %}
+                <div class=" my-md-4 text-dark-emphasis"><small class="">Mark changed
+                    <br>by {{ lecturer_name}}
+                    <br>on {{ update_date }}<br>
+                    Reason: {{ mark_change_reason }}</small></div>
+            {% endif %}
+            </div>
+            </div>
+
+            {# FEEDBACK #}
+            <div class="col-md-8">
+
+                {# FEEDBACK DISPLAY #}
+                <div aria-label="Assessment Feedback"
+                     class="mt-md-0 mt-3 flex-column align-content-center  col-md-12">
+
+                    <h5 class="col-12 mb-1 fw-bold"><label for="feedbackDisplay">Feedback</label></h5>
+                    <div class="col-12 rounded">
+                        <div
+                                class="py-3 text-dark col-12 text-start border shadow border-1 btn btn-outline-light"
+                                {% if lecturer %}
+                                 type="button" data-bs-toggle="modal" data-bs-target="#feedbackModalToggle"
+                                {% endif %}
+                                data-bs-feedback="Placeholder feedback" id="feedbackDisplay"
+                        >{{ generatedFeedback | safe }}</div>
+                    </div>
+                    {% if lecturer %}
+                    <a data-bs-toggle="modal" class="btn btn-dark rounded-0 mt-3 float-md-end"
+                       aria-label="Edit feedback button"
+                       href="#feedbackModalToggle" role="button">Edit feedback</a>
+                    {% endif %}
+                </div>
+
+                {# FEEDBACK MODAL #}
+            {% if lecturer %}
+                {% include "reports_templates/feedback_modal.html" %}
+            {% endif %}
+            </div>
+        </div>
+
+        {# COMBINE FORMATIVE & SUMMATIVE PERFORMANCE #}
+        <div class="container row my-4">
+            <div class="radar-container col-6">
+            <canvas id="student-radar"></canvas>
+            </div>
+            <div class="grades-container col-6 align-self-center">
+            <canvas id="assessment-grades"></canvas>
+            </div>
+        </div>
+
+        {# ACCORDION BUTTONS #}
+        <div class="row my-2">
+            <div class="float-start col-lg-8 col-md-7 col-8 me-auto">
+                <h3 class="pt-0 col-12">Questions and Answers</h3>
+            </div>
+            <div class="float-end float-end ms-auto my-auto col-lg-4 col-md-5 col-4">
+                <div id="accordion-buttons" class="text-dark-emphasis">
+                    <button class="btn btn-outline-light text-dark-emphasis ms-auto my-auto p-0"
+                            onclick="openAll()">
+                            <span
+                                    class="accordion-button-text ps-1 pb-1"><u>Expand All</u></span>
+                        <i class="fa-solid fa-angles-down pe-1"></i>
+                    </button>
+                    <button class="btn btn-outline-light text-dark-emphasis ms-auto p-0" onclick="closeAll()"
+                            style="display:none">
+                        <span class="accordion-button-text ps-1 pb-1"><u>Collapse All</u></span>
+                        <i class="fa-solid fa-angles-up pe-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {# QUESTIONS AND ANSWERS #}
+        <div class="" id="accordion">
+            <div class="bd-example">
+                <div class="accordion border accordion-flush" id="accordionQuestions">
+                    {% for question in questions %}
+                        <div class="accordion-item row">
+                            <h4 class="accordion-header" id="question{{ question }}">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapse{{ question }}" aria-expanded="true"
+                                        aria-controls="collapse{{ question }}">
+                                    <span class="fw-bold pe-3">Q{{ question }}:</span><span
+                                        class="fw-bolder pe-3"> {{ questions[question]["Q"] }}</span>
+                                    {% set all_correct = true %}
+                                    {# Check if the student's answers are correct for the question #}
+                                    {% if questions[question]["student_answers"] != questions[question]["correct_answers"] %}
+                                        {% set all_correct = false %}
+                                    {% endif %}
+                                    {# Indicate if the answers for the question are correct #}
+                                    {% if all_correct == true %}
+                                        <i aria-hidden="true" class="fa mark-indicator fa-check fa-xl"
+                                           style="color: var(--bs-success);"></i>
+                                        <span class="ms-2 fa" aria-hidden="true"
+                                              style='font-family: cera-round-pro, "Helvetica Neue", "Helvetica", sans-serif; font-weight: bold'>correct</span>
+                                    {% else %}
+                                        <i aria-hidden="true" class="fa mark-indicator fa-times fa-xl"
+                                           style="color: var(--bs-danger)"></i>
+                                        <span class="ms-2 fa" aria-hidden="true"
+                                              style='font-family: cera-round-pro, "Helvetica Neue", "Helvetica", sans-serif; font-weight: bold'>wrong</span>
+                                    {% endif %}
+                                </button>
+                            </h4>
+                            <div id="collapse{{ question }}" class="accordion-collapse collapse show"
+                                 aria-labelledby="question{{ question }}">
+                                <div class="accordion-body p-0">
+                                    <div class="table-responsive row">
+                                        <div class="col-lg-7 float-start">
+                                        <table class="align-items-center overflow-hidden table table-border border-white border-2 mb-3">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col" class="col-7">Option</th>
+                                                <th scope="col" class="text-center col-1">Selection</th>
+                                                <th scope="col" class="col-1 text-center"></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody class="">
+                                            {% for option in questions[question]["student_answers"] %}
+                                                <tr {% if questions[question]["correct_answers"][option]==True %}class="correct"
+                                                    aria-label="This is the correct answer"
+                                                    {% else %}class="border-bottom border-gray" {% endif %}>
+                                                    <td class="lh-1">{{ option }}</td>
+                                                    <td class="text-center lh-1">
+                                                        {% if questions[question]["student_answers"][option] == True %}
+                                                            selected
+                                                        {% else %}
+                                                            not selected
+                                                        {% endif %}
+                                                    </td>
+                                                    {% if questions[question]["student_answers"][option] == True %}
+                                                        <td class="text-center">
+                                                            {% if questions[question]["student_answers"][option] == questions[question]["correct_answers"][option] %}
+                                                                <i aria-hidden="true"
+                                                                   aria-label="Selected and correct"
+                                                                   class="fa selection-indicator fa-check fa-xl"
+                                                                   style="color: var(--bs-success);"></i>
+                                                            {% else %}
+                                                                <i aria-hidden="true"
+                                                                   aria-label="Selected and wrong"
+                                                                   class="fa selection-indicator fa-times fa-xl"
+                                                                   style="color: var(--bs-danger);"></i>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% else %}
+                                                        <td></td>
+                                                    {% endif %}
+                                                </tr>
+                                            {% endfor %}
+
+                                            </tbody>
+                                            <tfoot>
+                                            <tr class="lh-1">
+                                                <th scope="row" class="text-end" colspan="2">Marks</th>
+                                                <td class="text-center fw-bold">{{ questions[question]["marks_for_question"] }}/{{ questions[question]["marks_available_for_question"] }}</td>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                        </div>
+                                        <div class="col-lg-5 float-end align-self-center">
+                                        <canvas id="chart{{ loop.index - 1}}"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {# CRITERIA for ASSESSMENT #}
+        <div class="container my-4">
+            <h3 class="pt-0 col-12">Criteria for {{ enrolmentDetails.code }} {{ assessmentDetails.assessment }}</h3>
+            <div class="card-group">
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Distinction</h5>
+                      <p class="card-text">70% or more will be awarded if most criteria are met at ‘Distinction’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Merit</h5>
+                      <p class="card-text">60-69% will be awarded if most criteria are met at ‘Merit’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Pass</h5>
+                      <p class="card-text">50-59% will be awarded if most criteria are met at ‘Pass’ level.</p>
+                    </div>
+                </div>
+                <div class="card border">
+                    <div class="card-body">
+                      <h5 class="card-title">Fail</h5>
+                      <p class="card-text">49% or below will be awarded if most criteria are ‘Fail’.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="my-5"></div>
+    </footer>
+{% endblock %}
+
+
+{% block pagescripts %}
+
+    {{ super() }}
+
+    {# FEEDBACK SCRIPT #}
+    {% if lecturer %}
+    <script>
+        const feedbackModal = document.getElementById('feedbackModalToggle')
+
+        feedbackModal.addEventListener('shown.bs.modal', () => {
+            const editorInput = document.getElementsByClassName('ck ck-content')[1]
+            editorInput.focus()
+        })
+
+        function saveFeedback() {
+            const emptyFeedbackText = document.getElementById("feedback-field")
+            const newFeedbackText = document.createElement('textarea');
+
+            $.each(emptyFeedbackText.attributes, function () {
+                newFeedbackText.setAttribute(this.name, this.value);
+            });
+
+            const newFeedbackInnerHTML = document.getElementsByClassName("ck-editor__editable")[1].innerHTML;
+            if (newFeedbackInnerHTML !== '<p class="ck-placeholder" data-placeholder="Please provide a reason for the change."><br data-cke-filler="true"></p>' && newFeedbackInnerHTML !== '<p><br data-cke-filler="true"></p>') {
+                {#newFeedbackDiv.innerHTML = newFeedbackInnerHTML#}
+                newFeedbackText.innerHTML = newFeedbackInnerHTML
+                {#generatedFeedback.replaceWith(newFeedbackDiv);#}
+                emptyFeedbackText.replaceWith(newFeedbackText);
+                document.getElementById("feedback-form").submit()
+            } else {
+                const editorInput = document.getElementsByClassName('ck ck-content')[1]
+                editorInput.focus()
+                showMessage("Please add feedback for student.", editorInput);
+            }
+        }
+
+
+    </script>
+    
+    <script src="{{ url_for('static', filename='ck_classic_editor.js') }}"></script>
+
+    {# MARK SCRIPT #}
+    <script>
+        const markModal = document.getElementById('markModal')
+        markModal.addEventListener('show.bs.modal', event => {
+            const button = event.relatedTarget
+            const mark = button.getAttribute('data-bs-mark') // Extract info from data-bs-* attributes
+            const markInput = markModal.querySelector('.modal-body #marks-field') // Update the modal's content.
+
+            markInput.placeholder = mark
+            markInput.setAttribute('max', {{ assessmentDetails.total }})
+        });
+
+        function saveMark() {
+            const emptyReasonText = document.getElementById("editor-reason")
+            const newReasonText = document.createElement('textarea');
+            const innerEditorHTML = document.getElementsByClassName("ck-editor__editable")[0].innerHTML;
+            const markInput = markModal.querySelector('.modal-body #marks-field')
+
+
+            $.each(emptyReasonText.attributes, function () {
+                newReasonText.setAttribute(this.name, this.value);
+            });
+            if (innerEditorHTML !== '<p><br data-cke-filler="true"></p>' && innerEditorHTML !== '<p class="ck-placeholder" data-placeholder="Please provide a reason for the change."><br data-cke-filler="true"></p>') {
+                newReasonText.innerHTML = innerEditorHTML
+                emptyReasonText.replaceWith(newReasonText);
+                document.getElementById("mark-form").submit();
+            } else {
+                const editorInput = document.getElementsByClassName('ck ck-content')[0]
+                editorInput.focus()
+                if (markInput.value) {
+                    showMessage("Please provide a reason for changing the mark.", editorInput);
+                }
+            }
+        }
+
+        function showMessage(message, element) {
+            // create a div element with the message
+            const messageDiv = document.createElement("div");
+            const messageSmall = document.createElement("small");
+            messageSmall.textContent = message;
+            // style the div element
+            messageDiv.style.position = "absolute";
+            messageDiv.style.padding = "10px";
+            messageDiv.className = "alert alert-secondary";
+            messageDiv.setAttribute("role","alert");
+            messageDiv.appendChild(messageSmall);
+            // append the div element to the document body
+            element.parentNode.insertBefore(messageDiv, element.nextSibling);
+
+            // use setTimeout to remove the div element after 3 seconds
+            setTimeout(function () {
+                // get the messageDiv element and remove it from its parent node
+                messageDiv.parentNode.removeChild(messageDiv);
+            }, 2000);
+
+        }
+    </script>
+    {% endif %}
+
+    {# ACCORDION SCRIPT #}
+    <script>
+
+        // Download PDF
+        document.getElementById("downloadPDF").addEventListener('click', (e) => {
+            e.preventDefault()
+            const PDF_width = document.getElementById('PDF-content').style.width
+            const opt = {
+                margin: 1,
+                filename: '{{ enrolmentDetails.code }}_{{ enrolmentDetails.student }}_report.pdf',
+                image: { type: 'jpeg', quality: 1},
+                html2canvas: { scale: 3, width: PDF_width, dpi:300 },
+                pagebreak: { mode: ['avoid-all'] }
+            }
+            const pdfContent = document.getElementById('PDF-content')
+            html2pdf().set(opt).from(pdfContent).save()
+        })
+
+        // Render the assessment question information
+        fetch('/return_assessment_data_for_js/' + {{ assessmentDetails.code }})
+        .then(response => response.json())
+        .then(data => {
+            drawBarForQ(data)
+            drawRadar()
+        })
+
+        // Render the assessment cohort information
+        fetch('/return_assessment_overview_for_js/' + {{ assessmentDetails.code }})
+        .then(response => response.json())
+        .then(data => {
+            drawDistribution(data.grades)
+        })
+
+        // Draw bar chart for each question
+        const drawBarForQ = ( data ) => {
+            for ( var i = 0; i < data.length; i++ ) {
+                console.log( i + ': chart! \n')
+                var ctx = document.getElementById('chart' + i).getContext('2d')
+                var chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data[i].options.map((o) => `${o.slice(0, 7)} ...`),
+                        datasets:[{
+                            label: 'Number of Students',
+                            data: data[i].count,
+                            barThickness: 25,
+                            backgroundColor: 'black'
+                        }]
+                    },
+                    options: {
+                        plugins: { title: { display: true, text: data[i].content } }
+                    }
+                });
+            }
+        }
+
+        // Draw distribution for overview
+        const drawDistribution = ( data ) => {
+            var ctx = document.getElementById('assessment-grades').getContext('2d')
+            var chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data[0],
+                    datasets: [{
+                        label: "Number of students",
+                        data: data[1],
+                        barThickness: 30,
+                        backgroundColor: 'black'
+                    }]
+                },
+                options: {
+                    scales: {y: {ticks: {precision: 0}}}
+                }
+            })
+        }
+
+        // Configure Radar data
+        const radarData = {
+            labels: ['Cloud Computing', 'Data Visualisation', 'UI/UX Design', 'Front-end', 'iOS Development', 'Machine Learning'],
+            datasets: [{
+                label: 'Formative assessment',
+                data: [60, 45, 60, 80, 80, 50],
+                fill: true,
+                backgroundColor: 'rgba(240, 240, 240, 0.2)',
+                borderColor: '#9BA4B5',
+                pointBackgroundColor: '#9BA4B5',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(240, 240, 240)'
+            }, {
+                label: 'Summative assessment',
+                data: [65, 80, 70, 95, 75, 100],
+                fill: true,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: '#394867',
+                pointBackgroundColor: '#394867',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: 'rgb(54, 162, 235)'
+            }]
+        };
+
+        // Configure radar setting
+        const radarConfig = {
+            type: 'radar',
+            data: radarData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                elements: {
+                line: {
+                    borderWidth: 3
+                }
+                }
+            },
+            };
+
+        // Draw Radar graph for multiple attempts
+        const drawRadar = () =>{
+            var ctx = document.getElementById("student-radar").getContext('2d')
+            var chart = new Chart(ctx, radarConfig)
+        }
+
+        // Define a function to check the status of the accordions
+        function checkAccordionStatus() {
+            console.log("CheckStatus invoked")
+
+            const buttons = document.querySelectorAll(".accordion-button"); // Get all the accordion buttons and contents
+
+            let openCount = 0; // Initialize a variable to count the number of open accordions
+            // Loop through each accordion element, check if the accordion is expanded, increment counter
+            for (let i = 0; i < buttons.length; i++) {
+                if (!buttons[i].classList.contains("collapsed")) {
+                    openCount++;
+                }
+            }
+            // Check if all accordions are closed
+            if (openCount === 0) {
+                // Show the open all button and hide the close all button
+                document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                    "block";
+                document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                    "none";
+            }
+            // Check if all accordions are open
+            else if (openCount === buttons.length) {
+                // Hide the open all button and show the close all button
+                document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                    "none";
+                document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                    "block";
+            }
+        }
+
+        // Call the checkStatus function when the page loads
+        window.onload = checkAccordionStatus;
+
+        // Get all the accordion item buttons
+        const accordionItemButtons = document.querySelectorAll(".accordion-button");
+        const toggleAllButtons = document.querySelectorAll("#accordion-buttons button");
+
+        // Add a listener for the click event on each accordion item button
+        for (let i = 0; i < accordionItemButtons.length; i++) {
+            accordionItemButtons[i].addEventListener("click",
+                // Call the checkStatus function
+                checkAccordionStatus);
+        }
+        // Add a listener for the click event on the toggle all button
+        for (let i = 0; i < toggleAllButtons.length; i++) {
+            toggleAllButtons[i].addEventListener("click",
+                // Call the checkStatus function
+                checkAccordionStatus);
+        }
+
+        {# Open all accordions function #}
+
+        function openAll() {
+            console.log("Opening all accordions using the function")
+            const buttons = document.querySelectorAll(".accordion-button");
+            const contents = document.querySelectorAll(".accordion-collapse");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.toggle("collapsed");
+                const bsCollapse = new bootstrap.Collapse(contents[i], {toggle: false});
+                bsCollapse.show();
+            }
+            document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                "none";
+            document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                "block";
+        }
+
+        {# Close all accordions function #}
+
+        function closeAll() {
+            console.log("Closing all accordions using the function")
+            const buttons = document.querySelectorAll(".accordion-button");
+            const contents = document.querySelectorAll(".accordion-collapse");
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].classList.toggle("collapsed");
+                const bsCollapse = new bootstrap.Collapse(contents[i], {toggle: false});
+                bsCollapse.hide();
+            }
+            document.querySelector("#accordion-buttons button:nth-child(1)").style.display =
+                "block";
+            document.querySelector("#accordion-buttons button:nth-child(2)").style.display =
+                "none";
+        }
+    </script>
+{% endblock %}
+
+

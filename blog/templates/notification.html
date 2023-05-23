@@ -1,0 +1,66 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <script>
+            $(document).ready(function() {
+                $('#successModal').modal('show');
+            });
+        </script>
+        <!-- Custom CSS -->
+        <style>
+            img {
+                max-width: 70%;
+                max-height: 70px;
+            };
+        </style>
+
+        <div class="modal fade modal-sm " id="successModal" >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-0">
+                    <div class="flashes">
+                        {% for category, message in messages %}
+                    
+                            <div class="alert alert-{{ category }} border-0 rounded-0" style="padding: 30px;">
+                            <!-- Title -------------------------------------->
+                                <div class="text-center mx-auto ">
+                                    {% if category == "success" %}
+                                        <img class="img-fluid mx-auto border border-{{ category }} border-3 rounded-circle"  src="https://img.icons8.com/emoji/256/check-mark-emoji.png">
+                                    {% elif category == "danger" %}
+                                        <img class="img-fluid mx-auto border border-{{ category }} border-3 rounded-circle"  src="https://img.icons8.com/emoji/256/cross-mark-emoji.png">
+                                    {% else %}
+                                        <h5 class="modal-title text-{{ category }}" id="successModalLabel"> Message </h5>
+                                    {% endif %}
+                                </div>
+                                <br>
+
+                            <!-- Message -------------------------------------->
+                                <div class="text-center" >
+                                    <h4>{{ message }}</h4>
+                                </div>
+                            </div>
+
+
+                            <!-- Button -------------------------------------->
+                            <div class="text-center text-dark mb-3">
+                                {% if category == "success" %}
+                                    <button type="button" class="btn btn-{{ category }} rounded-0 mx-auto" style="padding: 10px 50px;" data-bs-dismiss="modal">Close</button>
+                                {% elif category == "danger" %}
+                                    <button type="button" class="btn btn-{{ category }} rounded-0 mx-auto" style="padding: 10px 50px;" data-bs-dismiss="modal">Close</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-dark rounded-0 mx-auto" style="padding: 10px 50px;" data-bs-dismiss="modal">Close</button>
+                                {% endif %}
+                            </div>
+
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    {% endif %}
+{% endwith %}
+
+
+
+
+

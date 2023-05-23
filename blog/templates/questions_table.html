@@ -1,0 +1,152 @@
+  <!-- Custom Script -->
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap.tagsinput/0.8.0/bootstrap-tagsinput.css">
+  <script src="https://cdn.jsdelivr.net/bootstrap.tagsinput/0.8.0/bootstrap-tagsinput.min.js"></script>
+  <style>
+    /* Hide the input field inside bootstrap-tagsinput */
+
+    .bootstrap-tagsinput{
+        height: 100px; /* set the height to your desired value */
+        border: 0;
+        background-color: transparent;
+    }
+
+    /* customisze label tag */
+    .tag.label.label-info {
+        margin: auto;
+        padding: 5px;
+        border-radius: 8px;
+    }
+
+  </style>
+  <script>
+  
+      //  Tags
+      $(document).ready(function() {
+              // Define an array of colors
+              var colors = ["#0d6efd", "#fd7e14", "#198754", "#ffc107"];
+  
+              // Initialize the color counter to 0
+              var colorIndex = 0;
+  
+              // Set a sequential color for each <span> element with the class tag label label-info
+              $(".tag.label.label-info").each(function() {
+  
+                  $(this).attr("name", "tags");
+                  $('span[data-role="remove"]').remove();
+    
+                  
+                  // Get the current color from the array
+                  var color = colors[colorIndex];
+  
+                  // Set the background color of the current <span> element
+                  $(this).css("background-color", color);
+  
+                  // Increment the color counter
+                  colorIndex = (colorIndex + 1) % colors.length;
+              });
+  
+              // Listen for changes to the input and update the color of any new <span> elements
+              $("input").on("itemAdded", function() {
+                  // Get the newly added <span> element
+                  var tag = $(".tag.label.label-info").last();
+  
+                  // Get the next color from the array
+                  var color = colors[colorIndex];
+  
+                  // Set the background color of the new <span> element
+                  tag.css("background-color", color);
+  
+                      // Increment the color counter
+                  colorIndex = (colorIndex + 1) % colors.length;
+              });
+      });
+  
+      function changeColor() {
+              // Get the input element
+              var tag = document.querySelector(".tag.label.label-info");
+              // Get a random color
+              var color = getRandomColor();
+  
+              // Set the background color of the tag element
+              tag.style.backgroundColor = color;
+          }
+  
+      function getRandomColor() {
+          // Generate a random hex color code
+          var letters = "0123456789ABCDEF";
+          var color = "#";
+          for (var i = 0; i < 6; i++) {
+              color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+      }
+
+  </script>
+
+
+
+<!-- Custom table -->
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            "pageLength": 25,
+            "responsive": true,
+
+        });
+    });
+</script>
+
+<!-- Questions list Table -->
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">ID</th>
+                <th scope="col">Question</th>
+                <th scope="col">Tags</th>
+                <th scope="col">Type</th>
+                <th scope="col">Module</th>
+                <th scope="col">Level</th>
+                <th scope="col">Created</th>
+                <!-- <th scope="col">Modify</th> -->
+                <th scope="col">Initiator</th> 
+                <th scope="col">More</th>                        
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}  
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ question.id }}</td>
+                    <td>{{ question.question }}</td>
+                    <td>
+                        <input class="form-control rounded-0" 
+                               name="tags" id="myTags" type="text" 
+                               value="{{ question.tags }}" 
+                               data-role="tagsinput" 
+                               data-max-tags="0" disabled>
+                      </td>
+                    {% if question.category == "single" %}
+                        <td>Single Choice</td>
+                    {% else %}
+                        <td>Multiple Choice</td>
+                    {% endif %}
+                    <td>{{ question.module_code }}</td>
+                    {% if question.level == '3' %}
+                        <td>Hard</td>
+                    {% elif question.level == '2' %}
+                        <td>Medium</td>
+                    {% else %}
+                        <td>Easy</td>
+                    {% endif%}
+                    <td>{{ question.created_date.strftime('%d/%m/%y') }}</td>
+                    <!-- <td>{{ question.modify_date }}</td> -->
+                    <td>{{ question.first_name }} {{ question.last_name }}</td>
+                    <td><a href="{{ url_for('edit_question', question_id=question.id) }}" class="nav-link active text-primary" >Edit</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

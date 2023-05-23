@@ -1,0 +1,141 @@
+{% extends "index.html" %}
+
+{% block title %}Reports{% endblock %}
+{% block headtags %}
+    <link rel="stylesheet" href="{{ url_for('static',filename='reports.css') }}">
+    <script src="https://kit.fontawesome.com/f583ca8d25.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/36.0.1/classic/ckeditor.js"></script>
+    {#    {% import ckeditor %}#}
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="bg-dark text-white" data-bs-theme="dark">
+        <div class="container-sm container-fluid d-flex flex-column text-left ">
+            <div class="row flex-grow-1 text-left">
+                <div class="rounded-0">
+                    <div class="container">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb mt-1 mb-2 p-0">
+                                <li class="breadcrumb-item">Reports</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block content %}
+    <header>
+
+    </header>
+    <main>
+        <div class="container mt-3">
+            <div class="m-2"><h1>Modules</h1></div>
+            {# MODULES #}
+            <div class="align-content-center">
+                <div class="module-container d-flex align-items-stretch">
+                    {% for module, module_list in modules %}
+                        <a class="m-2 btn p-2 text-start module-button border border-dark-subtle bg-body-tertiary rounded-1"
+                           data-bs-module="{{ module.module_code }}">
+                            <div class="p-0">
+                                <h5 class="fw-bold my-0">{{ module.module_code }}</h5>
+                                <small class="col-12 mb-0">{{ module_list.module_name }}</small>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="d-flex flex-column" id="moduleAssessments">
+
+            </div>
+        </div>
+    </main>
+    <footer>
+
+    </footer>
+
+{% endblock %}
+
+
+{% block pagescripts %}
+    {{ super() }}
+
+    <script>
+        function moduleAssessments() {
+            const assessments_urls = {{ assessments_urls | safe }};
+            const assessments = JSON.parse(assessments_urls['assessments']);
+            const urls = JSON.parse(assessments_urls['urls']);
+            const is_assessment_formative = JSON.parse(assessments_urls['is_assessment_formative']);
+            const list = document.getElementById("moduleAssessments");
+            const module_code = event.currentTarget.getAttribute("data-bs-module");
+            list.innerHTML = "";
+            for (let module in assessments) {
+                if (assessments.hasOwnProperty(module_code) && module === module_code) {
+                    const module_assessments = assessments[module_code];
+                    for (let assessment in module_assessments) {
+                        if (module_assessments.hasOwnProperty(assessment)) {
+                            let assessment_no = module_assessments[assessment];
+                            if (is_assessment_formative[assessment_no]) {
+                                var small = document.createElement("small");
+                                var small_text = document.createTextNode("formative");
+                            } else {
+                                var small = document.createElement("small");
+                                var small_text = document.createTextNode("summative");
+                            }
+                            const button = document.createElement("button");
+                            button.className = "p-0 m-2 btn text-start border border-dark-subtle bg-body-light rounded-1";
+                            button.setAttribute("data-bs-module", module_code);
+                            button.setAttribute("data-bs-assessment-code", module_assessments[assessment]);
+                            const div = document.createElement("div");
+                            div.className = "container-fluid py-2";
+                            small.className = "col-5 text-end text-dark-emphasis d-inline-block";
+                            const parent_div = document.createElement("div");
+                            const h4 = document.createElement("h4");
+                            h4.className = "fw-bold";
+                            h4.appendChild(document.createTextNode(assessment));
+                            small.appendChild(small_text);
+                            const p = document.createElement("p");
+                            p.className = "col-7 mb-0 d-inline-block";
+                            p.appendChild(document.createTextNode(module_code));
+                            div.appendChild(h4);
+                            parent_div.appendChild(p);
+                            parent_div.appendChild(small);
+                            div.appendChild(parent_div);
+                            button.appendChild(div);
+                            // get the key for the URL from the module_code and assessment
+                            let key = `${module_code}_${assessment}`;
+                            // get the URL from the urls dictionary using the key
+                            let reportLink = urls[key];
+                            button.addEventListener("click", function () {
+                                window.location.href = reportLink;
+                            });
+                            list.appendChild(button);
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // get all the button elements with the class .module-button
+        const buttons = document.querySelectorAll(".module-button");
+
+        $('.module-button').click(function () {
+            $('.module-button').removeClass('border-dark active shadow border-2');
+            $('.module-button').addClass('border-dark-subtle');
+            $(this).removeClass('border-dark-subtle');
+            $(this).addClass('border-2 shadow active border-dark');
+        });
+        // loop over the buttons
+        for (let button of buttons) {
+            // add an event listener for the click event
+            button.addEventListener("click", function (event) {
+                // call the moduleAssessments function with the assessments and urls variables
+                moduleAssessments();
+                {#moduleAssessments({{ assessments, urls | safe }});#}
+            });
+        }
+    </script>
+{% endblock %}
+
+

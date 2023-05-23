@@ -1,0 +1,84 @@
+/* Accordion Buttons */
+.material-symbols-rounded {
+    font-variation-settings: 'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+}
+
+.accordion-button-text {
+    vertical-align: middle;
+}
+
+.accordion-button-icon {
+    vertical-align: middle;
+}
+
+#accordion-buttons .btn {
+    outline: none !important;
+    transition: all 0.4s ease-out;
+}
+
+#accordion-buttons .btn:hover {
+    transform: translateY(-5px);
+    color: lightslategray;
+}
+
+#accordion-buttons .btn.show {
+    transform: translateY(0);
+}
+
+.mark-indicator {
+    margin-left: auto;
+!important;
+}
+
+.accordion-button::after {
+    margin-left: 20px;
+}
+
+.fa.hidden {
+    display: none;
+}
+
+/*TABLE CSS*/
+
+tr.correct {
+    border: 2px solid green;
+}
+
+table.table-border {
+    border: 1px solid lightgray;
+}
+
+/*DETAILS TITLE*/
+.details-title {
+    width: 150px;
+    display: inline-block;
+}
+
+/*MODULE BUTTONS*/
+
+.module-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-items: center;
+    align-content: flex-start;
+}
+
+.module-button {
+    flex: 1;
+    width: 160px;
+    min-width: 152px;
+    max-width: 150px;
+    margin-left: auto;
+}
+
+/*MARK BUTTON*/
+#mark-button {
+    min-width: 170px;
+    max-width: 180px;
+    min-height: 140px;
+    max-height: 140px;
+}

@@ -1,92 +1,33 @@
-# Automated Assessment Tool
+# Automated Asssement Tool
+
+Introduction: 
+
+The AAT Software Engineering project is a collaborative effort undertaken by a team of six to develop a comprehensive teaching-staff and student assessment system. The project aims to provide a user-friendly platform where teaching-staff can create, manage, and evaluate assessments while enabling students to undertake summative assessments and provide feedback on various aspects of the system. Additionally, the system will allow teaching-staff to review student attainment, engagement statistics, and overall satisfaction, empowering them to make informed decisions regarding teaching and assessment strategies.
 
 
+App Features:
 
-## Getting started
+1.	Question Management:
+    - Teaching-staff will have the ability to add questions to the system.
+    - Teaching-staff can edit and delete questions as needed.
+    - Each question must include a question itself, an answer, a check for correctness, and feedback.
+2.	Assessment Composition:
+    - Teaching-staff can define a sequence of questions to create assessments.
+    - Assessments can consist of type-one questions, type-two questions, or a mix of both.
+3.	Summative Assessments:
+    - Student users will be able to undertake summative assessments.
+    - Automatically generated feedback will be provided to students after completing each question.
+    - The timing of feedback points will be determined by teaching-staff.
+4.	Student Attainment and Engagement Statistics:
+    - Teaching-staff can review relevant statistics regarding student-user attainment, attempts, and engagement.
+    - Individual student performance as well as cohort-based statistics (annual intakes) will be available.
+5.	Comments and Formative Assessments:
+    - Both teaching-staff and students can leave comments on questions included in formative assessments.
+    - Teaching-staff can review and respond to student comments, fostering a collaborative learning environment.
+6.	Student Satisfaction:
+    - Students will have the ability to indicate their satisfaction with the AAT system, questions, assessments, and other relevant factors.
+    - Teaching-staff will have access to relevant student satisfaction statistics, providing valuable insights for improving teaching and assessment methods.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Conclusion:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/fmsaibi/automated-assessment-tool.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/fmsaibi/automated-assessment-tool/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+The AAT Software Engineering project aims to create an efficient and user-centric teaching-staff and student assessment system. By empowering teaching-staff with question management capabilities, assessment composition tools, and in-depth student performance analysis, the system promotes effective teaching strategies. Additionally, students will benefit from the ability to undertake assessments, receive timely feedback, and provide feedback on various aspects of the system. The inclusion of student satisfaction statistics will further enhance the overall quality of teaching and assessment within the AAT system.

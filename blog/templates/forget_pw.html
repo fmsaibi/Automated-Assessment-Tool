@@ -1,0 +1,25 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 mx-auto">
+      <br> <br>
+      <form action="{{ url_for('forget') }}" method="POST">
+        {{ form.csrf_token }}
+        <div class="form-floating">
+          {{ wtf.form_field(form.email, type="text", class="form-control rounded-0 py-2 px-4", placeholder="Enter Email") }}
+
+        </div>
+        <br>
+     
+        {{ wtf.form_field(form.submit, type="submit", class="btn btn-dark btn-sm rounded-0 py-2 px-4") }}
+
+      </form>
+
+
+    </div>
+  </div>
+</div>
+{% endblock content %}
