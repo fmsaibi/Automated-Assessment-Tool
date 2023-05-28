@@ -32,22 +32,19 @@ Conclusion:
 
 The AAT Software Engineering project aims to create an efficient and user-centric teaching-staff and student assessment system. By empowering teaching-staff with question management capabilities, assessment composition tools, and in-depth student performance analysis, the system promotes effective teaching strategies. Additionally, students will benefit from the ability to undertake assessments, receive timely feedback, and provide feedback on various aspects of the system. The inclusion of student satisfaction statistics will further enhance the overall quality of teaching and assessment within the AAT system.
 
-
-
 **login page*
 ![Alt Text](/blog/static/img/Login%20Page.png)
 
 **Question Page**
+
 ![Alt Text](/blog/static/img/Question.png)
 
 **Edit Question**
-![Alt Text](/blog/static/img/edit%20-%200.png)
 
+![Alt Text](/blog/static/img/edit%20-%200.png)
 
 ![Alt Text](/blog/static/img/edit%20%E2%80%93%201.png)
 
-
 ![Alt Text](/blog/static/img/edit%20%E2%80%93%202.png)
-
 
 ![Alt Text](/blog/static/img/edit%20%E2%80%93%203.png)
