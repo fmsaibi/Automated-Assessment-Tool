@@ -34,11 +34,14 @@ The AAT Software Engineering project aims to create an efficient and user-centri
 # A quick overview of the application
 
 **Login Page**
+
 ![Alt Text](/blog/static/img/Login%20Page.png)
+
 
 **Question Page**
 
 ![Alt Text](/blog/static/img/Question.png)
+
 
 **Edit Question**
 
