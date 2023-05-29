@@ -47,8 +47,4 @@ The AAT Software Engineering project aims to create an efficient and user-centri
 
 ![Alt Text](/blog/static/img/edit%20-%200.png)
 
-![Alt Text](/blog/static/img/edit%20%E2%80%93%201.png)
-
-![Alt Text](/blog/static/img/edit%20%E2%80%93%202.png)
-
 ![Alt Text](/blog/static/img/edit%20%E2%80%93%203.png)
