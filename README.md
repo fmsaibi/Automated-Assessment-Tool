@@ -1,11 +1,11 @@
 # Automated Asssement Tool
 
-Introduction: 
+## Introduction: 
 
 The AAT Software Engineering project is a collaborative effort undertaken by a team of six to develop a comprehensive teaching-staff and student assessment system. The project aims to provide a user-friendly platform where teaching-staff can create, manage, and evaluate assessments while enabling students to undertake summative assessments and provide feedback on various aspects of the system. Additionally, the system will allow teaching-staff to review student attainment, engagement statistics, and overall satisfaction, empowering them to make informed decisions regarding teaching and assessment strategies.
 
 
-App Features:
+## App Features:
 
 1.	Question Management:
     - Teaching-staff will have the ability to add questions to the system.
@@ -28,11 +28,12 @@ App Features:
     - Students will have the ability to indicate their satisfaction with the AAT system, questions, assessments, and other relevant factors.
     - Teaching-staff will have access to relevant student satisfaction statistics, providing valuable insights for improving teaching and assessment methods.
 
-Conclusion:
 
 The AAT Software Engineering project aims to create an efficient and user-centric teaching-staff and student assessment system. By empowering teaching-staff with question management capabilities, assessment composition tools, and in-depth student performance analysis, the system promotes effective teaching strategies. Additionally, students will benefit from the ability to undertake assessments, receive timely feedback, and provide feedback on various aspects of the system. The inclusion of student satisfaction statistics will further enhance the overall quality of teaching and assessment within the AAT system.
 
-**login page*
+# A quick overview of the application
+
+**Login Page**
 ![Alt Text](/blog/static/img/Login%20Page.png)
 
 **Question Page**
